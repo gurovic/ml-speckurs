@@ -7,16 +7,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CANVAS_DATA = (
-    ROOT.parent
-    / ".cursor/projects/c-Users-ml-speckurs/canvases/ml-theory-concepts-map.canvas.data.json"
-)
-# Fallback when script lives in ml-speckurs and canvas in .cursor/projects
-if not CANVAS_DATA.exists():
-    CANVAS_DATA = Path(
-        r"C:\Users\Гуровиц Владимир\.cursor\projects\c-Users-ml-speckurs"
-        r"\canvases\ml-theory-concepts-map.canvas.data.json"
-    )
+CANVAS_DATA = ROOT / "canvases/ml-theory-concepts-map.canvas.data.json"
 
 BIG_CONCEPTS: list[tuple[str, str]] = [
     ("workflow", "Постановка задачи и ML-workflow"),
