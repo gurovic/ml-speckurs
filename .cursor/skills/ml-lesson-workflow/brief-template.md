@@ -2,9 +2,9 @@
 
 ## Мета
 - **Папка:** `{NN_topic}/`
-- **Теория:** Занятие {N} — `{topic}_theory.ipynb`
+- **Теория:** Занятие {N} — `{topic}_theory.ipynb` (для папки `{NN}_…`: **N = NN × 2 − 1**)
 - **Упражнения:** Занятие {N} — `{topic}_exercises.ipynb`
-- **Практика:** Занятие {M} — `{topic}_practice.ipynb` (~{minutes} мин)
+- **Практика:** Занятие {N+1} — `{topic}_practice.ipynb` (~{minutes} мин) — **всегда на 1 больше теории**
 - **Решение практики (преподаватель):** `{topic}_practice_solution.ipynb`
 
 ## Тема и цель
