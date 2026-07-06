@@ -68,6 +68,7 @@ description: >-
 - Не объединять в одном H2 независимые темы («Baseline и дисбаланс», «Масштаб и регуляризация»). Исключение — чек-листы и roadmap.
 - После split — перенумеровать H2 и обновить **п.** / **пп.** во всей папке занятия.
 - Чек-лист: `.cursor/rules/theory-single-concept-sections.mdc`.
+- **Статичные таблицы** — markdown, не code: `.cursor/rules/theory-static-tables.mdc`.
 
 ---
 

@@ -44,6 +44,10 @@ const BIG_CONCEPTS: {
   },
   { key: "hyperparams", title: "Подбор гиперпараметров" },
   {
+    key: "reproducibility",
+    title: "Воспроизводимость: seeds и версии",
+  },
+  {
     key: "overfitting",
     title: "Переобучение, недообучение, bias–variance",
   },
@@ -88,6 +92,13 @@ function assignBigConcept(lessonNum: number, label: string): string {
     )
   ) {
     return "regularization";
+  }
+  if (/^Ошибка на train/i.test(label)) return "train-split";
+  if (/Утечки в CV/i.test(label)) return "leakage";
+  if (
+    /воспроизвод|random_state|seed|верси.*артефакт/i.test(label)
+  ) {
+    return "reproducibility";
   }
   if (
     /^[Пп]ереобуч|при добавлении дерев|Три состояния|Причины переобуч|bias–variance|не описывает данные|недостаточно|нестабильн|Ограничения и эксплуата/i.test(
@@ -263,6 +274,12 @@ const LABEL_RENAME: Record<string, string> = {
   "Масштабирование признаков логрег": "Зачем масштабировать перед L1/L2",
   "Регуляризация C и l1_ratio в логрег": "Параметр C и сила регуляризации",
   "Предобработка данных для бустинга": "Нужна ли предобработка для бустинга",
+  "Стратификация по классам в CV": "Стратификация, группы и время в CV",
+  "Разбиение по группам, времени и задаче": "Стратификация, группы и время в CV",
+  "Типичные утечки внутри cross-validation": "Утечки в CV и grid search",
+  "Grid search по сетке гиперпараметров": "Утечки в CV и grid search",
+  "Одно разбиение vs повторная проверка":
+    "Переобучение на validation при многократном переборе",
 };
 
 function migrateConceptLabels(placements: Placements): Placements {
@@ -274,7 +291,7 @@ function migrateConceptLabels(placements: Placements): Placements {
       else if (LABEL_RENAME[label]) out.push(LABEL_RENAME[label]);
       else out.push(label);
     }
-    if (out.length > 0) next[ck] = out;
+    if (out.length > 0) next[ck] = [...new Set(out)];
   }
   return next;
 }
@@ -501,22 +518,21 @@ const LESSONS: Lesson[] = [
     num: 33,
     short: "валидация",
     concepts: [
+      { label: "Ошибка на train и на новых данных" },
       { label: "Три состояния: недо-, пере- и хорошее обобщение" },
       { label: "Причины переобучения (шум, гибкость, мало данных)" },
       { label: "Смещение и разброс (bias–variance)" },
       { label: "Параметры модели vs гиперпараметры" },
-      { label: "Переобучение на validation при многократном переборе" },
       { label: "Train / validation / test — роли выборок" },
-      { label: "Одно разбиение vs повторная проверка" },
+      { label: "Переобучение на validation при многократном переборе" },
       { label: "Validation curve — подбор сложности модели" },
       { label: "Learning curve — нужно ли больше данных" },
       { label: "K-fold cross-validation" },
-      { label: "Стратификация по классам в CV" },
-      { label: "Разбиение по группам, времени и задаче" },
+      { label: "Стратификация, группы и время в CV" },
       { label: "Предобработка внутри каждого fold" },
-      { label: "Типичные утечки внутри cross-validation" },
-      { label: "Grid search по сетке гиперпараметров" },
+      { label: "Утечки в CV и grid search" },
       { label: "Вложенная cross-validation" },
+      { label: "Воспроизводимость: seeds и версии артефактов" },
       { label: "Финальный протокол: fit на train+val, оценка на test" },
     ],
   },
@@ -825,7 +841,7 @@ function buildUnifiedTableRows(
 
 export default function MlTheoryConceptsMap() {
   const { text, fill, accent } = useHostTheme();
-  const [labelSplitDone, setLabelSplitDone] = useCanvasState("label-split-v1", false);
+  const [labelSplitDone, setLabelSplitDone] = useCanvasState("label-split-v2", false);
   const [rowSplitDone, setRowSplitDone] = useCanvasState("row-split-v4", false);
   const [placements, setPlacements] = useCanvasState(
     "placements-v2",
