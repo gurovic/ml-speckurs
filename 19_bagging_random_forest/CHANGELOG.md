@@ -1,21 +1,36 @@
 # CHANGELOG — 19_bagging_random_forest
 
-## Pipeline ml-lesson-workflow (стадии 5–7)
+## Pipeline ml-lesson-workflow
 
-### 5. Технический review
-- `bagging_random_forest_theory.ipynb` и `bagging_random_forest_practice_solution.ipynb` выполнены без ошибок.
-- Сравнение tree / bagging / RF, OOB, `n_estimators`, `permutation_importance` — проверены.
-- Нумерация: теория **37**, практика **38**.
+### 0–1. Brief + Architect
+- Зафиксирована структура по запросу автора: **математическая основа → виды ансамблей → bagging / random forest**.
+- Теория 37, практика 38; `plan.md` не редактировался.
+- Сквозной датасет — один: `make_classification`, 1000 объектов, 20 признаков, split 70/30.
 
-### 6. Методический review
-- Упражнения: 8 задач с **п.** теории.
-- Практика: bootstrap-задание → **п. 2** (уникальные объекты в выборке).
+### 2. Theory
+- Теория пересобрана: **27 разделов** вместо прежнего короткого варианта.
+- Добавлены пп. 1–5: bias–variance, снижение разброса при усреднении, majority vote и роль разнообразия.
+- Добавлен п. 6: обзор bagging / boosting / stacking перед основной темой.
+- Основная часть раскрывает bootstrap, OOB, bagging, RF, `max_features`, гиперпараметры, importance и ограничения.
 
-### 6b. Филолог
-- metadata `name` синхронизированы.
+### 3–4b. Exercises + Practice + Solution
+- Упражнения пересобраны: **10 задач** со ссылками на п. 3, 4, 6, 9, 10, 12, 16–17, 19.
+- Практика 38 пересобрана: 9 заданий, пустые code-ячейки для студентов.
+- Solution выполнен и сохранён с outputs; пометка «только преподаватель» сохранена.
 
-### 6c. Student Reader
+### 5. Technical review
+- `bagging_random_forest_theory.ipynb` и `bagging_random_forest_practice_solution.ipynb` выполнены через `nbclient` и сохранены.
+- Исправлено: ранние математические code-ячейки теперь имеют setup-импорты до использования `np`.
+- Исправлено: убрана зависимость от `scipy`, вероятность majority vote считается через `math.comb`.
+- Исправлено: демонстрация коррелированных ошибок теперь сравнивает независимые и одинаковые ошибки корректно.
+- Исправлено: в тексте sklearn API используется актуальный `estimator=...`, не `base_estimator`.
+- Исправлено: критерий в практике больше не требует `RF ≥ bagging`, потому что на данном split bagging немного выше RF.
+
+### 6–6c. Methodology / Philologist / Student Reader
+- Убран посторонний `make_moons`: все ключевые сравнения теперь привязаны к одному сквозному датасету.
+- Проверены ссылки **п.** / **пп.** в exercises, practice и solution.
 - См. `STUDENT_REVIEW.md`.
 
 ### 7. Final Editor
-- Комплект готов. Solution — только преподавателю.
+- Синхронизирован canvas карты концептов: занятие 37 теперь содержит 27 плашек.
+- Добавлены миграции старых плашек и поднята версия `label-split-v5`.
