@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Rebuild lesson 17_bagging_random_forest: theory, exercises, practice."""
+"""Rebuild lessons 33/34: bagging and random forest."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-FOLDER = Path(__file__).resolve().parents[1] / "17_bagging_random_forest"
+THEORY_FOLDER = Path(__file__).resolve().parents[1] / "Урок_33_Ансамбли_Bagging_Случайный_лес_Теория"
+PRACTICE_FOLDER = Path(__file__).resolve().parents[1] / "Урок_34_Ансамбли_Bagging_Случайный_лес_Практика"
 RANDOM_STATE = 42
 CRITERION_MARKER = "@@CRITERION@@"
 
@@ -637,8 +638,8 @@ def exercises_cells() -> list[dict]:
     cells = [
         md(
             "# Занятие 33. Упражнения: bagging и случайный лес\n\n"
-            "Короткая проверка теории (`bagging_random_forest_theory.ipynb`, занятие 33). "
-            "Сквозной код — в `bagging_random_forest_practice.ipynb` (занятие 34).\n"
+            "Короткая проверка теории (`Урок_33_Ансамбли_Bagging_Случайный_лес.ipynb`, занятие 33). "
+            "Сквозной код — в `Урок_34_Ансамбли_Bagging_Случайный_лес_Практика.ipynb` (занятие 34).\n"
         ),
         code("import numpy as np\nimport pandas as pd\n"),
     ]
@@ -827,17 +828,17 @@ def write_nb(path: Path, cells: list[dict], name: str) -> None:
 
 def main() -> None:
     write_nb(
-        FOLDER / "bagging_random_forest_theory.ipynb",
+        THEORY_FOLDER / "Урок_33_Ансамбли_Bagging_Случайный_лес.ipynb",
         theory_cells(),
         "Занятие 33. Bagging и случайный лес",
     )
     write_nb(
-        FOLDER / "bagging_random_forest_exercises.ipynb",
+        THEORY_FOLDER / "Тест_к_теории.ipynb",
         exercises_cells(),
         "Занятие 33. Упражнения",
     )
     write_nb(
-        FOLDER / "bagging_random_forest_practice.ipynb",
+        PRACTICE_FOLDER / "Урок_34_Ансамбли_Bagging_Случайный_лес_Практика.ipynb",
         practice_cells(solution=True),
         "Занятие 34. Практика",
     )

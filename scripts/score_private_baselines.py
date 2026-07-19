@@ -33,7 +33,7 @@ from sklearn.metrics import (
 
 COMPETITIONS = {
     "linear": {
-        "folder": ROOT / "13_linear_regression" / "competition",
+        "folder": ROOT / "Урок_26_Линейная_регрессия_Практика" / "competition",
         "baseline_notebook": "simple_baseline.ipynb",
         "author_notebook": "author_solution.ipynb",
         "baseline_submission": "submission.csv",
@@ -42,7 +42,7 @@ COMPETITIONS = {
         "metric_direction": "меньше — лучше",
     },
     "logistic": {
-        "folder": ROOT / "14_logistic_regression" / "competition",
+        "folder": ROOT / "Урок_28_Логистическая_регрессия_Практика" / "competition",
         "baseline_notebook": "simple_baseline.ipynb",
         "author_notebook": "author_solution.ipynb",
         "baseline_submission": "submission.csv",

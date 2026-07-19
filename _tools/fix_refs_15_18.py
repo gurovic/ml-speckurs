@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 REPLACEMENTS = {
-    "15_overfitting_validation/overfitting_validation_practice.ipynb": [
+    "Урок_30_Переобучение_и_валидация_Практика/Урок_30_Переобучение_и_валидация_Практика.ipynb": [
         ("п. 7–9 теории", "п. 8–10 теории"),
         ("(как в теории, п. 4)", "(как в теории, п. 6)"),
         ("По мотивам п. 7.", "По мотивам п. 8."),
@@ -14,21 +14,21 @@ REPLACEMENTS = {
         ("По мотивам п. 9. `cross_validate`", "По мотивам п. 10. `cross_validate`"),
         ("гиперпараметр**? (п. 6)", "гиперпараметр**? (п. 4)"),
     ],
-    "16_decision_tree/decision_tree_practice.ipynb": [
+    "Урок_32_Решающее_дерево_Практика/Урок_32_Решающее_дерево_Практика.ipynb": [
         ("По п. 16. `plot_tree`", "По п. 1. `plot_tree`"),
         ("По п. 15. Выведите `feature_importances_`", "По п. 14. Выведите `feature_importances_`"),
     ],
-    "17_bagging_random_forest/bagging_random_forest_practice.ipynb": [
+    "Урок_34_Ансамбли_Bagging_Случайный_лес_Практика/Урок_34_Ансамбли_Bagging_Случайный_лес_Практика.ipynb": [
         ("По п. 3. Сгенерируйте bootstrap", "По п. 2. Сгенерируйте bootstrap"),
     ],
-    "18_gradient_boosting/gradient_boosting_practice.ipynb": [
+    "Урок_36_Boosting_Практика/Урок_36_Boosting_Практика.ipynb": [
         ("По п. 17. `RandomForestRegressor", "По п. 12. `RandomForestRegressor"),
         ("от bagging (п. 2).", "от bagging (п. 11)."),
     ],
 }
 
 EXERCISE_HEADER_FIXES = {
-    "15_overfitting_validation/overfitting_validation_exercises.ipynb": {
+    "Урок_29_Переобучение_и_валидация_Теория/Тест_к_теории.ipynb": {
         "## 1. Диагноз (п. 2)": "## 1. Диагноз (п. 1)",
         "## 2. Параметры (п. 6)": "## 2. Параметры (п. 4)",
         "## 3. K-fold (п. 9)": "## 3. K-fold (п. 10)",
@@ -37,7 +37,7 @@ EXERCISE_HEADER_FIXES = {
         "## 7. Validation curve (п. 7)": "## 7. Validation curve (п. 8)",
         "## 8. Финальный fit (п. 16)": "## 8. Финальный fit (п. 17)",
     },
-    "16_decision_tree/decision_tree_exercises.ipynb": {
+    "Урок_31_Решающее_дерево_Теория/Тест_к_теории.ipynb": {
         "## 5. Лист регрессии (п. 8)": "## 5. Лист регрессии (п. 6)",
     },
 }
@@ -93,7 +93,7 @@ def fix_exercise_headers(path: Path, mapping: dict):
 
 
 def fix_section6_analogy():
-    path = ROOT / "15_overfitting_validation/overfitting_validation_theory.ipynb"
+    path = ROOT / "Урок_29_Переобучение_и_валидация_Теория/Урок_29_Переобучение_и_валидация.ipynb"
     nb = json.loads(path.read_text(encoding="utf-8"))
     for cell in nb["cells"]:
         if cell["cell_type"] != "markdown":

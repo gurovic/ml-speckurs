@@ -1,13 +1,13 @@
 ---
-description: Зафиксированные решения по практике 11_workflow (вчера+сегодня)
-globs: "11_workflow/workflow_practice.ipynb,11_workflow/STUDENT_REVIEW.md,11_workflow/practice_images/**"
+description: Зафиксированные решения по практике Урок_22_ML_workflow_и_kNN
+globs: "Урок_22_ML_workflow_и_kNN_Практика/knn_imba.ipynb,Урок_21_ML_workflow_и_kNN_Теория/STUDENT_REVIEW.md,Урок_22_ML_workflow_и_kNN_Практика/practice_images/**"
 alwaysApply: true
 ---
 
-# 11_workflow: зафиксированные решения по практике
+# Урок_22_ML_workflow_и_kNN_Практика: зафиксированные решения по практике
 
 Ниже — договоренности из обсуждений по практике за последние дни.  
-При любых правках `11_workflow/workflow_practice.ipynb` соблюдать их как источник истины.
+При любых правках `Урок_22_ML_workflow_и_kNN_Практика/knn_imba.ipynb` соблюдать их как источник истины.
 
 ## 1) Базовый контекст урока
 
@@ -18,7 +18,7 @@ alwaysApply: true
 
 ## 2) Датасет (обязательный)
 
-- Использовать реальный датасет из `11_workflow/approved.json`.
+- Использовать реальный датасет из `Урок_22_ML_workflow_и_kNN_Практика/approved.json`.
 - Объект: бинарная иконка **10×10** (100 признаков после flatten).
 - Классы: `castle`, `dragon`, `knight`.
 - Истинная метка берется из поля `initial`.
@@ -39,7 +39,7 @@ alwaysApply: true
   - примеры иконок разных классов;
   - обзор всего датасета;
   - визуализации распределений/плотности.
-- Использовать изображения из `11_workflow/practice_images/`.
+- Использовать изображения из `Урок_22_ML_workflow_и_kNN_Практика/practice_images/`.
 
 ## 5) Структура и оценивание
 
@@ -78,8 +78,8 @@ alwaysApply: true
 
 ## 8) Текущее состояние файлов
 
-- По текущей договоренности решения интегрированы в `workflow_practice.ipynb`.
-- Не создавать заново `workflow_practice_solution.ipynb`, если пользователь явно не попросил.
+- По текущей договоренности решения интегрированы в `knn_imba.ipynb`.
+- Не создавать заново отдельный `practice_solution`, если пользователь явно не попросил.
 
 ## 9) Ограничения при дальнейших правках
 

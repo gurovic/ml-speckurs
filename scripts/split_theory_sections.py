@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # old_section -> new section(s); int means single new number, tuple means range
 REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
-    "11_workflow": {
+    "Урок_21_ML_workflow_и_kNN_Теория": {
         1: 1,
         2: 2,
         3: 3,
@@ -32,7 +32,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         17: 19,
         18: 20,
     },
-    "12_feature_engineering": {
+    "Урок_23_Feature_Engineering_Теория": {
         **{i: i for i in range(1, 13)},
         13: (13, 14),
         14: 15,
@@ -40,7 +40,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         16: 17,
         17: 18,
     },
-    "13_linear_regression": {
+    "Урок_25_Линейная_регрессия_Теория": {
         **{i: i for i in range(1, 7)},
         7: (7, 8),
         8: 9,
@@ -52,7 +52,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         14: 15,
         15: 16,
     },
-    "14_logistic_regression": {
+    "Урок_27_Логистическая_регрессия_Теория": {
         **{i: i for i in range(1, 11)},
         11: (11, 12),
         12: 13,
@@ -66,7 +66,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         20: (23, 24),
         21: 25,
     },
-    "16_decision_tree": {
+    "Урок_31_Решающее_дерево_Теория": {
         **{i: i for i in range(1, 12)},
         12: 12,
         13: (13, 14),
@@ -75,7 +75,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         16: 17,
         17: 18,
     },
-    "17_bagging_random_forest": {
+    "Урок_33_Ансамбли_Bagging_Случайный_лес_Теория": {
         **{i: i for i in range(1, 11)},
         11: (11, 12),
         12: 13,
@@ -84,7 +84,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         15: 16,
         16: 17,
     },
-    "18_gradient_boosting": {
+    "Урок_35_Boosting_Теория": {
         **{i: i for i in range(1, 8)},
         8: (8, 9),
         9: 10,
@@ -588,13 +588,13 @@ def apply_boosting_splits(nb: dict) -> dict:
 
 
 SPLITTERS = {
-    "11_workflow/workflow_theory.ipynb": apply_workflow_splits,
-    "12_feature_engineering/feature_engineering_theory.ipynb": apply_feature_engineering_splits,
-    "13_linear_regression/linear_regression_theory.ipynb": apply_linear_regression_splits,
-    "14_logistic_regression/logistic_regression_theory.ipynb": apply_logistic_regression_splits,
-    "16_decision_tree/decision_tree_theory.ipynb": apply_decision_tree_splits,
-    "17_bagging_random_forest/bagging_random_forest_theory.ipynb": apply_bagging_splits,
-    "18_gradient_boosting/gradient_boosting_theory.ipynb": apply_boosting_splits,
+    "Урок_21_ML_workflow_и_kNN_Теория/Урок_21_Workflow_kNN.ipynb": apply_workflow_splits,
+    "Урок_23_Feature_Engineering_Теория/Урок_23_Feature_Engineering_Теория.ipynb": apply_feature_engineering_splits,
+    "Урок_25_Линейная_регрессия_Теория/Урок_25_Линейная_регрессия.ipynb": apply_linear_regression_splits,
+    "Урок_27_Логистическая_регрессия_Теория/Урок_27_Логистическая_регрессия.ipynb": apply_logistic_regression_splits,
+    "Урок_31_Решающее_дерево_Теория/Урок_31_Решающее_дерево.ipynb": apply_decision_tree_splits,
+    "Урок_33_Ансамбли_Bagging_Случайный_лес_Теория/Урок_33_Ансамбли_Bagging_Случайный_лес.ipynb": apply_bagging_splits,
+    "Урок_35_Boosting_Теория/35_Градиентный_бустинг.ipynb": apply_boosting_splits,
 }
 
 
@@ -636,7 +636,7 @@ def update_folder_refs(folder: str) -> None:
 
 def fix_workflow_internal_refs(nb: dict) -> dict:
     """Manual fixes after split for workflow-specific wording."""
-    ref_map = REF_MAPS["11_workflow"]
+    ref_map = REF_MAPS["Урок_21_ML_workflow_и_kNN_Теория"]
     for cell in nb["cells"]:
         if cell.get("source"):
             cell["source"] = [update_refs_in_text("".join(cell["source"]), ref_map)]
@@ -691,7 +691,7 @@ def main() -> None:
         print(f"Split: {rel}")
         nb = load_nb(path)
         nb = splitter(nb)
-        if "11_workflow" in rel:
+        if "Урок_21_ML_workflow_и_kNN_Теория" in rel:
             nb = fix_workflow_internal_refs(nb)
         save_nb(path, nb)
 

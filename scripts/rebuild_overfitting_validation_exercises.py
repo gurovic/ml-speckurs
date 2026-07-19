@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild overfitting_validation_exercises.ipynb synced with 15-section theory."""
+"""Rebuild Тест_к_теории.ipynb synced with 15-section theory."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 NOTEBOOK = (
     Path(__file__).resolve().parents[1]
-    / "15_overfitting_validation/overfitting_validation_exercises.ipynb"
+    / "Урок_29_Переобучение_и_валидация_Теория/Тест_к_теории.ipynb"
 )
 
 
@@ -31,7 +31,7 @@ def build_cells() -> list[dict]:
         md(
             """# Занятие 29. Упражнения: переобучение и валидация
 
-Короткая проверка теории (`overfitting_validation_theory.ipynb`, занятие 29). Сквозной код — в `overfitting_validation_practice.ipynb` (занятие 30)."""
+Короткая проверка теории (`Урок_29_Переобучение_и_валидация.ipynb`, занятие 29). Сквозной код — в `Урок_30_Переобучение_и_валидация_Практика.ipynb` (занятие 30)."""
         ),
         code("import numpy as np\nimport pandas as pd\n"),
         md("## 1. Validation error (п. 1)\n\nНа каких данных считают **validation error**?"),

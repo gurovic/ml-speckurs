@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Rebuild decision_tree_theory.ipynb — закрывает все TODO, 15 разделов."""
+"""Rebuild Урок_31_Решающее_дерево.ipynb — закрывает все TODO, 15 разделов."""
 
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-NOTEBOOK = Path(__file__).resolve().parents[1] / "16_decision_tree/decision_tree_theory.ipynb"
+NOTEBOOK = Path(__file__).resolve().parents[1] / "Урок_31_Решающее_дерево_Теория/Урок_31_Решающее_дерево.ipynb"
 
 DATA_CODE = """import numpy as np
 import pandas as pd

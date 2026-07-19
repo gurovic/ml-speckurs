@@ -166,7 +166,7 @@ def make_linear_data(n_train: int = 700, n_test: int = 300) -> None:
     test_full = df.iloc[n_train:].copy()
     test = test_full.drop(columns=["price_mln"])
 
-    out = ROOT / "13_linear_regression" / "competition" / "data"
+    out = ROOT / "Урок_26_Линейная_регрессия_Практика" / "competition" / "data"
     out.mkdir(parents=True, exist_ok=True)
     train.to_csv(out / "train.csv", index=False, encoding="utf-8")
     test.to_csv(out / "test.csv", index=False, encoding="utf-8")
@@ -247,7 +247,7 @@ def make_logistic_data(n_train: int = 800, n_test: int = 350) -> None:
     test_full = df.iloc[n_train:].copy()
     test = test_full.drop(columns=["will_finish"])
 
-    out = ROOT / "14_logistic_regression" / "competition" / "data"
+    out = ROOT / "Урок_28_Логистическая_регрессия_Практика" / "competition" / "data"
     out.mkdir(parents=True, exist_ok=True)
     train.to_csv(out / "train.csv", index=False, encoding="utf-8")
     test.to_csv(out / "test.csv", index=False, encoding="utf-8")
@@ -1451,19 +1451,19 @@ def write_materials() -> None:
     make_logistic_data()
     make_ensemble_data()
 
-    linear_root = ROOT / "13_linear_regression"
-    logistic_root = ROOT / "14_logistic_regression"
+    linear_root = ROOT / "Урок_26_Линейная_регрессия_Практика"
+    logistic_root = ROOT / "Урок_28_Логистическая_регрессия_Практика"
     linear_dir = linear_root / "competition"
     logistic_dir = logistic_root / "competition"
     ensemble_dir = ROOT / "final_ensemble_competition"
 
     practice_data_replacement = {"DATA_DIR = Path(\"data\")": "DATA_DIR = Path(\"competition\") / \"data\""}
     write_notebook(
-        linear_root / "linear_regression_practice.ipynb",
+        linear_root / "Урок_26_Линейная_регрессия_Практика.ipynb",
         replaced_cells(LINEAR_STUDENT, practice_data_replacement),
     )
     write_notebook(
-        logistic_root / "logistic_regression_practice.ipynb",
+        logistic_root / "Урок_28_Логистическая_регрессия_Практика.ipynb",
         replaced_cells(LOGISTIC_STUDENT, practice_data_replacement),
     )
     write_notebook(ensemble_dir / "ensemble_classification_competition.ipynb", ENSEMBLE_STUDENT)
@@ -1483,7 +1483,7 @@ def write_materials() -> None:
 
 Участникам раздать:
 
-- `../linear_regression_practice.ipynb`
+- `../Урок_26_Линейная_регрессия_Практика.ipynb`
 - `data/train.csv`
 - `data/test.csv`
 - `data/sample_submission.csv`
@@ -1505,7 +1505,7 @@ def write_materials() -> None:
 
 Участникам раздать:
 
-- `../logistic_regression_practice.ipynb`
+- `../Урок_28_Логистическая_регрессия_Практика.ipynb`
 - `data/train.csv`
 - `data/test.csv`
 - `data/sample_submission.csv`

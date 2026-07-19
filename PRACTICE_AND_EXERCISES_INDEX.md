@@ -6,21 +6,21 @@
 
 | Теория | Мини-задачки на понимание | Следующая практика | Комментарий |
 |---:|---|---|---|
-| 21. ML workflow и kNN | `11_workflow/workflow_exercises.ipynb` | 22. `11_workflow/workflow_practice.ipynb` | Полный цикл: постановка, split, baseline, kNN, ошибки |
-| 23. Конструирование признаков | `12_feature_engineering/feature_engineering_exercises.ipynb` | 24. `12_feature_engineering/feature_engineering_practice.ipynb` | Признаки для регрессии цены квартиры |
-| 25. Линейная регрессия | `13_linear_regression/linear_regression_exercises.ipynb` | 26. `13_linear_regression/linear_regression_practice.ipynb` | Практика с leaderboard-форматом и скрытым test |
-| 27. Логистическая регрессия | `14_logistic_regression/logistic_regression_exercises.ipynb` | 28. `14_logistic_regression/logistic_regression_practice.ipynb` | Практика с вероятностями, F1 и подбором порога |
-| 29. Переобучение и валидация | `15_overfitting_validation/overfitting_validation_exercises.ipynb` | 30. `15_overfitting_validation/overfitting_validation_practice.ipynb` | Validation curve, learning curve, k-fold CV |
-| 31. Решающее дерево | `16_decision_tree/decision_tree_exercises.ipynb` | 32. `16_decision_tree/decision_tree_practice.ipynb` | Глубина, листья, pruning, confusion matrix |
-| 33. Bagging и случайный лес | `17_bagging_random_forest/bagging_random_forest_exercises.ipynb` | 34. `17_bagging_random_forest/bagging_random_forest_practice.ipynb` | Bagging, Random Forest, OOB, permutation importance |
-| 35. Градиентный бустинг | `18_gradient_boosting/gradient_boosting_exercises.ipynb` | 36. `18_gradient_boosting/gradient_boosting_practice.ipynb` | Sklearn-бустинг и внешние библиотеки бустинга |
+| 21. ML workflow и kNN | `Урок_21_ML_workflow_и_kNN_Теория/Тест_к_теории.ipynb` | 22. `Урок_22_ML_workflow_и_kNN_Практика/knn_imba.ipynb` | Полный цикл: постановка, split, baseline, kNN, ошибки |
+| 23. Конструирование признаков | `Урок_23_Feature_Engineering_Теория/Тест_к_теории.ipynb` | 24. `Урок_24_Feature_Engineering_Практика/Урок_24_Feature_Engineering_Практика.ipynb` | Признаки для регрессии цены квартиры |
+| 25. Линейная регрессия | `Урок_25_Линейная_регрессия_Теория/Тест_к_теории.ipynb` | 26. `Урок_26_Линейная_регрессия_Практика/Урок_26_Линейная_регрессия_Практика.ipynb` | Практика с leaderboard-форматом и скрытым test |
+| 27. Логистическая регрессия | `Урок_27_Логистическая_регрессия_Теория/Тесты_к_теории.ipynb` | 28. `Урок_28_Логистическая_регрессия_Практика/Урок_28_Логистическая_регрессия_Практика.ipynb` | Практика с вероятностями, F1 и подбором порога |
+| 29. Переобучение и валидация | `Урок_29_Переобучение_и_валидация_Теория/Тест_к_теории.ipynb` | 30. `Урок_30_Переобучение_и_валидация_Практика/Урок_30_Переобучение_и_валидация_Практика.ipynb` | Validation curve, learning curve, k-fold CV |
+| 31. Решающее дерево | `Урок_31_Решающее_дерево_Теория/Тест_к_теории.ipynb` | 32. `Урок_32_Решающее_дерево_Практика/Урок_32_Решающее_дерево_Практика.ipynb` | Глубина, листья, pruning, confusion matrix |
+| 33. Bagging и случайный лес | `Урок_33_Ансамбли_Bagging_Случайный_лес_Теория/Тест_к_теории.ipynb` | 34. `Урок_34_Ансамбли_Bagging_Случайный_лес_Практика/Урок_34_Ансамбли_Bagging_Случайный_лес_Практика.ipynb` | Bagging, Random Forest, OOB, permutation importance |
+| 35. Градиентный бустинг | `Урок_35_Boosting_Теория/Тест_к_теории.ipynb` | 36. `Урок_36_Boosting_Практика/Урок_36_Boosting_Практика.ipynb` | Sklearn-бустинг и внешние библиотеки бустинга |
 
 ## Дополнительные материалы для практик в формате leaderboard
 
 Для занятий 26 и 28 есть отдельные папки с данными, baseline, авторским решением и учительской проверкой внутри соответствующих тем:
 
-- `13_linear_regression/competition/`
-- `14_logistic_regression/competition/`
+- `Урок_26_Линейная_регрессия_Практика/competition/`
+- `Урок_28_Логистическая_регрессия_Практика/competition/`
 
 Итоговое соревнование по модулю вынесено из папок уроков в отдельную корневую папку:
 

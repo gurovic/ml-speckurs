@@ -1,4 +1,4 @@
-"""Generate static images for workflow_practice.ipynb from approved.json."""
+"""Generate static images for knn_imba.ipynb from approved.json."""
 from __future__ import annotations
 
 import json
@@ -8,7 +8,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1] / "11_workflow"
+ROOT = Path(__file__).resolve().parents[1] / "Урок_22_ML_workflow_и_kNN_Практика"
 IMG = ROOT / "practice_images"
 IMG.mkdir(exist_ok=True)
 

@@ -7,8 +7,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 TOPICS = [
     {
-        "folder": "15_overfitting_validation",
+        "theory_folder": "Урок_29_Переобучение_и_валидация_Теория",
+        "practice_folder": "Урок_30_Переобучение_и_валидация_Практика",
         "prefix": "overfitting_validation",
+        "theory_file": "Урок_29_Переобучение_и_валидация.ipynb",
+        "exercises_file": "Тест_к_теории.ipynb",
+        "practice_file": "Урок_30_Переобучение_и_валидация_Практика.ipynb",
         "n": 29,
         "np": 30,
         "topic_ru": "переобучение и валидация",
@@ -25,8 +29,12 @@ TOPICS = [
         ],
     },
     {
-        "folder": "16_decision_tree",
+        "theory_folder": "Урок_31_Решающее_дерево_Теория",
+        "practice_folder": "Урок_32_Решающее_дерево_Практика",
         "prefix": "decision_tree",
+        "theory_file": "Урок_31_Решающее_дерево.ipynb",
+        "exercises_file": "Тест_к_теории.ipynb",
+        "practice_file": "Урок_32_Решающее_дерево_Практика.ipynb",
         "n": 31,
         "np": 32,
         "topic_ru": "решающее дерево",
@@ -43,8 +51,12 @@ TOPICS = [
         ],
     },
     {
-        "folder": "17_bagging_random_forest",
+        "theory_folder": "Урок_33_Ансамбли_Bagging_Случайный_лес_Теория",
+        "practice_folder": "Урок_34_Ансамбли_Bagging_Случайный_лес_Практика",
         "prefix": "bagging_random_forest",
+        "theory_file": "Урок_33_Ансамбли_Bagging_Случайный_лес.ipynb",
+        "exercises_file": "Тест_к_теории.ipynb",
+        "practice_file": "Урок_34_Ансамбли_Bagging_Случайный_лес_Практика.ipynb",
         "n": 33,
         "np": 34,
         "topic_ru": "bagging и случайный лес",
@@ -61,8 +73,12 @@ TOPICS = [
         ],
     },
     {
-        "folder": "18_gradient_boosting",
+        "theory_folder": "Урок_35_Boosting_Теория",
+        "practice_folder": "Урок_36_Boosting_Практика",
         "prefix": "gradient_boosting",
+        "theory_file": "35_Градиентный_бустинг.ipynb",
+        "exercises_file": "Тест_к_теории.ipynb",
+        "practice_file": "Урок_36_Boosting_Практика.ipynb",
         "n": 35,
         "np": 36,
         "topic_ru": "градиентный бустинг",
@@ -93,13 +109,21 @@ def set_metadata_name(nb, name: str):
     nb.setdefault("metadata", {})["name"] = name
 
 
-def patch_exercises(folder: Path, prefix: str, n: int, np_: int, topic_ru: str, refs: list):
-    path = folder / f"{prefix}_exercises.ipynb"
+def patch_exercises(
+    theory_folder: Path,
+    exercises_file: str,
+    practice_file: str,
+    n: int,
+    np_: int,
+    topic_ru: str,
+    refs: list,
+):
+    path = theory_folder / exercises_file
     nb = load_nb(path)
     intro = (
         f"# Занятие {n}. Упражнения: {topic_ru}\n\n"
-        f"Короткая проверка теории (`{prefix}_theory.ipynb`, занятие {n}). "
-        f"Сквозной код — в `{prefix}_practice.ipynb` (занятие {np_}).\n"
+        f"Короткая проверка теории (занятие {n}). "
+        f"Сквозной код — в `{practice_file}` (занятие {np_}).\n"
     )
     nb["cells"][0]["source"] = [intro]
     ref_map = {num: ref for num, ref in refs}
@@ -120,20 +144,20 @@ def patch_exercises(folder: Path, prefix: str, n: int, np_: int, topic_ru: str, 
     save_nb(path, nb)
 
 
-def patch_theory_metadata(folder: Path, prefix: str, meta_name: str):
-    path = folder / f"{prefix}_theory.ipynb"
+def patch_theory_metadata(theory_folder: Path, theory_file: str, meta_name: str):
+    path = theory_folder / theory_file
     nb = load_nb(path)
     set_metadata_name(nb, meta_name)
     save_nb(path, nb)
 
 
-def create_outline(folder: Path, n: int, np_: int):
-    plan = (folder / "plan.md").read_text(encoding="utf-8")
-    outline = f"""# LESSON_OUTLINE — {folder.name}
+def create_outline(theory_folder: Path, practice_file: str, n: int, np_: int):
+    plan = (theory_folder / "plan.md").read_text(encoding="utf-8")
+    outline = f"""# LESSON_OUTLINE — {theory_folder.name}
 
 - **Теория / упражнения:** занятие {n}
-- **Практика:** занятие {np_} (N+1)
-- **Формула:** N = номер_папки × 2 − 1
+- **Практика:** занятие {np_} (следующий урок)
+- **Формула:** уроки идут по порядку с 21
 
 ## План теории (из plan.md)
 
@@ -141,7 +165,7 @@ def create_outline(folder: Path, n: int, np_: int):
 
 ## Практика (задания 0–8)
 
-См. `{folder.name.split('_', 1)[1] if '_' in folder.name else folder.name}_practice.ipynb` — validation/learning curve, CV, подбор гиперпараметров, итог.
+См. `{practice_file}` — validation/learning curve, CV, подбор гиперпараметров, итог.
 
 ## Артефакты
 
@@ -151,16 +175,16 @@ def create_outline(folder: Path, n: int, np_: int):
 | exercises | ✓ |
 | practice | ✓ канонический блокнот с условиями, ответами и LLM-критериями |
 """
-    (folder / "LESSON_OUTLINE.md").write_text(outline, encoding="utf-8")
+    (theory_folder / "LESSON_OUTLINE.md").write_text(outline, encoding="utf-8")
 
 
-def create_changelog(folder: Path, prefix: str, n: int, np_: int):
-    text = f"""# CHANGELOG — {folder.name}
+def create_changelog(theory_folder: Path, theory_file: str, practice_file: str, n: int, np_: int):
+    text = f"""# CHANGELOG — {theory_folder.name}
 
 ## Pipeline ml-lesson-workflow (стадии 5–7)
 
 ### Технический review
-- Проверены и перезапущены `{prefix}_theory.ipynb` и `{prefix}_practice.ipynb`.
+- Проверены и перезапущены `{theory_file}` и `{practice_file}`.
 - Нумерация: теория **{n}**, практика **{np_}**.
 
 ### Методический review
@@ -173,7 +197,7 @@ def create_changelog(folder: Path, prefix: str, n: int, np_: int):
 ### Final Editor
 - Комплект ноутбуков готов: теория, упражнения и практика.
 """
-    (folder / "CHANGELOG.md").write_text(text, encoding="utf-8")
+    (theory_folder / "CHANGELOG.md").write_text(text, encoding="utf-8")
 
 
 def fix_brief(folder: Path):
@@ -185,12 +209,20 @@ def fix_brief(folder: Path):
 
 
 for t in TOPICS:
-    folder = ROOT / t["folder"]
-    patch_exercises(folder, t["prefix"], t["n"], t["np"], t["topic_ru"], t["exercise_refs"])
-    patch_theory_metadata(folder, t["prefix"], t["meta_theory"])
-    create_outline(folder, t["n"], t["np"])
-    create_changelog(folder, t["prefix"], t["n"], t["np"])
-    fix_brief(folder)
-    print("Review artifacts:", t["folder"])
+    theory_folder = ROOT / t["theory_folder"]
+    patch_exercises(
+        theory_folder,
+        t["exercises_file"],
+        t["practice_file"],
+        t["n"],
+        t["np"],
+        t["topic_ru"],
+        t["exercise_refs"],
+    )
+    patch_theory_metadata(theory_folder, t["theory_file"], t["meta_theory"])
+    create_outline(theory_folder, t["practice_file"], t["n"], t["np"])
+    create_changelog(theory_folder, t["theory_file"], t["practice_file"], t["n"], t["np"])
+    fix_brief(theory_folder)
+    print("Review artifacts:", t["theory_folder"])
 
 print("Patch done. Run notebook execution separately.")

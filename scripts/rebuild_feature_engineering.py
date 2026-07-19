@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild lesson 12_feature_engineering: theory, exercises, practice.
+"""Rebuild lesson 23/24 feature engineering: theory, exercises, practice.
 
 Сквозной датасет: таблица объявлений о продаже квартир (flats), цель — цена.
 """
@@ -9,7 +9,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-FOLDER = Path(__file__).resolve().parents[1] / "12_feature_engineering"
+THEORY_FOLDER = Path(__file__).resolve().parents[1] / "Урок_23_Feature_Engineering_Теория"
+PRACTICE_FOLDER = Path(__file__).resolve().parents[1] / "Урок_24_Feature_Engineering_Практика"
 CRITERION_MARKER = "@@CRITERION@@"
 
 
@@ -410,7 +411,7 @@ def exercises_cells() -> list[dict]:
         md(
             """# Занятие 23. Упражнения: признаки
 
-Короткая проверка теории (`feature_engineering_theory.ipynb`, занятие 23). Полный пайплайн — на практике (занятие 24).
+Короткая проверка теории (`Урок_23_Feature_Engineering_Теория.ipynb`, занятие 23). Полный пайплайн — на практике (занятие 24).
 
 Формат: замените `...` своим ответом и запустите ячейку."""
         ),
@@ -573,7 +574,7 @@ def practice_cells(with_solutions: bool) -> list[dict]:
 
 Вы **пишете весь код сами**. Ячейку **«Дано»** не меняйте.
 
-Задача — регрессия: предсказать **цену** квартиры (млн руб.) по объявлению. Модель для проверки идей — kNN-регрессия (занятие 21), метрика — **MAE**. Теория — `feature_engineering_theory.ipynb` (занятие 23).
+Задача — регрессия: предсказать **цену** квартиры (млн руб.) по объявлению. Модель для проверки идей — kNN-регрессия (занятие 21), метрика — **MAE**. Теория — `Урок_23_Feature_Engineering_Теория.ipynb` (занятие 23).
 
 Ориентир по времени указан у каждого задания. Если застряли — идите дальше и вернитесь позже."""
     )
@@ -835,9 +836,9 @@ def write_nb(path: Path, cells: list[dict], name: str) -> None:
 
 
 def main() -> None:
-    write_nb(FOLDER / "feature_engineering_theory.ipynb", theory_cells(), "feature_engineering_theory")
-    write_nb(FOLDER / "feature_engineering_exercises.ipynb", exercises_cells(), "feature_engineering_exercises")
-    write_nb(FOLDER / "feature_engineering_practice.ipynb", practice_cells(True), "feature_engineering_practice")
+    write_nb(THEORY_FOLDER / "Урок_23_Feature_Engineering_Теория.ipynb", theory_cells(), "feature_engineering_theory")
+    write_nb(THEORY_FOLDER / "Тест_к_теории.ipynb", exercises_cells(), "feature_engineering_exercises")
+    write_nb(PRACTICE_FOLDER / "Урок_24_Feature_Engineering_Практика.ipynb", practice_cells(True), "feature_engineering_practice")
 
 
 if __name__ == "__main__":

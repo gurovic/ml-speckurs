@@ -11,7 +11,7 @@ from pathlib import Path
 
 NOTEBOOK = (
     Path(__file__).resolve().parents[1]
-    / "15_overfitting_validation/overfitting_validation_theory.ipynb"
+    / "Урок_29_Переобучение_и_валидация_Теория/Урок_29_Переобучение_и_валидация.ipynb"
 )
 
 

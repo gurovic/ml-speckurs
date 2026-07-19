@@ -112,15 +112,16 @@ def build_practice_cells(spec: dict, filled: bool) -> list:
     return cells
 
 
-# --- 17 Overfitting ---
-OV_DIR = ROOT / "15_overfitting_validation"
+# --- 29–30 Overfitting ---
+OV_PRACTICE_DIR = ROOT / "Урок_30_Переобучение_и_валидация_Практика"
+OV_EXERCISES_PATH = ROOT / "Урок_29_Переобучение_и_валидация_Теория" / "Тест_к_теории.ipynb"
 ov_spec = {
     "header": {
-        "n_theory": 33,
-        "n_practice": 34,
+        "n_theory": 29,
+        "n_practice": 30,
         "title": "переобучение и validation curve",
         "model": "LinearRegression + PolynomialFeatures",
-        "theory_file": "overfitting_validation_theory.ipynb",
+        "theory_file": "Урок_29_Переобучение_и_валидация.ipynb",
         "intro": "Построим validation curve по степени полинома, learning curve и k-fold CV на синтетических данных (как в п. 7–9 теории).",
     },
     "given_md": """---
@@ -289,14 +290,15 @@ print('Final validation MSE:', round(mean_squared_error(y_val, final.predict(Xva
 }
 
 # --- 18 Decision Tree ---
-DT_DIR = ROOT / "16_decision_tree"
+DT_PRACTICE_DIR = ROOT / "Урок_32_Решающее_дерево_Практика"
+DT_EXERCISES_PATH = ROOT / "Урок_31_Решающее_дерево_Теория" / "Тест_к_теории.ipynb"
 dt_spec = {
     "header": {
-        "n_theory": 35,
-        "n_practice": 36,
+        "n_theory": 31,
+        "n_practice": 32,
         "title": "решающее дерево",
         "model": "DecisionTreeClassifier",
-        "theory_file": "decision_tree_theory.ipynb",
+        "theory_file": "Урок_31_Решающее_дерево.ipynb",
         "intro": "На `make_moons` сравним глубокие и ограниченные деревья, подберём `max_depth` и посмотрим обрезку (пп. 10–11 теории).",
     },
     "given_md": """---
@@ -425,14 +427,15 @@ print(confusion_matrix(y_val, y_pred))""",
 dt_spec["tasks"][3]["body"] = dt_spec["tasks"][3]["body"].replace("Критerий", "Критерий")
 
 # --- 19 Random Forest ---
-RF_DIR = ROOT / "17_bagging_random_forest"
+RF_PRACTICE_DIR = ROOT / "Урок_34_Ансамбли_Bagging_Случайный_лес_Практика"
+RF_EXERCISES_PATH = ROOT / "Урок_33_Ансамбли_Bagging_Случайный_лес_Теория" / "Тест_к_теории.ipynb"
 rf_spec = {
     "header": {
-        "n_theory": 37,
-        "n_practice": 38,
+        "n_theory": 33,
+        "n_practice": 34,
         "title": "bagging и случайный лес",
         "model": "RandomForestClassifier",
-        "theory_file": "bagging_random_forest_theory.ipynb",
+        "theory_file": "Урок_33_Ансамбли_Bagging_Случайный_лес.ipynb",
         "intro": "Сравним одно дерево, bagging и random forest; настроим `n_estimators`, посмотрим OOB (пп. 7–10 теории).",
     },
     "given_md": """---
@@ -579,14 +582,15 @@ for i in top:
 }
 
 # --- 20 Gradient Boosting ---
-GB_DIR = ROOT / "18_gradient_boosting"
+GB_PRACTICE_DIR = ROOT / "Урок_36_Boosting_Практика"
+GB_EXERCISES_PATH = ROOT / "Урок_35_Boosting_Теория" / "Тест_к_теории.ipynb"
 gb_spec = {
     "header": {
-        "n_theory": 39,
-        "n_practice": 40,
+        "n_theory": 35,
+        "n_practice": 36,
         "title": "градиентный бустинг",
         "model": "GradientBoostingRegressor",
-        "theory_file": "gradient_boosting_theory.ipynb",
+        "theory_file": "35_Градиентный_бустинг.ipynb",
         "intro": "На `make_regression` настроим глубину, построим staged-кривую MAE и попробуем early stopping (пп. 4–8 теории).",
     },
     "given_md": """---
@@ -735,12 +739,12 @@ print('остатки:', residual)""",
 }
 
 
-def patch_exercises(path: Path, n_theory: int, n_practice: int, topic: str):
+def patch_exercises(path: Path, n_theory: int, n_practice: int, topic: str, practice_file: str):
     nb = json.loads(path.read_text(encoding="utf-8"))
     intro = (
         f"# Занятие {n_theory}. Упражнения: {topic}\n\n"
-        f"Короткая проверка `{path.name.replace('_exercises', '_theory')}`). "
-        f"Сквозной код — в `{path.name.replace('_exercises', '_practice')}` (занятие {n_practice}).\n"
+        "Короткая проверка теории. "
+        f"Сквозной код — в `{practice_file}` (занятие {n_practice}).\n"
     )
     nb["cells"][0]["source"] = [intro]
     nb.setdefault("metadata", {})["name"] = f"Занятие {n_theory}. Упражнения"
@@ -748,20 +752,51 @@ def patch_exercises(path: Path, n_theory: int, n_practice: int, topic: str):
 
 
 SPECS = [
-    (OV_DIR, "overfitting_validation", ov_spec, 29, 30, "валидация"),
-    (DT_DIR, "decision_tree", dt_spec, 31, 32, "дерево"),
-    (RF_DIR, "bagging_random_forest", rf_spec, 33, 34, "лес"),
-    (GB_DIR, "gradient_boosting", gb_spec, 35, 36, "бустинг"),
+    (
+        OV_PRACTICE_DIR,
+        OV_EXERCISES_PATH,
+        "Урок_30_Переобучение_и_валидация_Практика.ipynb",
+        ov_spec,
+        29,
+        30,
+        "валидация",
+    ),
+    (
+        DT_PRACTICE_DIR,
+        DT_EXERCISES_PATH,
+        "Урок_32_Решающее_дерево_Практика.ipynb",
+        dt_spec,
+        31,
+        32,
+        "дерево",
+    ),
+    (
+        RF_PRACTICE_DIR,
+        RF_EXERCISES_PATH,
+        "Урок_34_Ансамбли_Bagging_Случайный_лес_Практика.ipynb",
+        rf_spec,
+        33,
+        34,
+        "лес",
+    ),
+    (
+        GB_PRACTICE_DIR,
+        GB_EXERCISES_PATH,
+        "Урок_36_Boosting_Практика.ipynb",
+        gb_spec,
+        35,
+        36,
+        "бустинг",
+    ),
 ]
 
-for folder, prefix, spec, n_th, n_pr, topic in SPECS:
-    practice_path = folder / f"{prefix}_practice.ipynb"
-    exercises_path = folder / f"{prefix}_exercises.ipynb"
+for folder, exercises_path, practice_file, spec, n_th, n_pr, topic in SPECS:
+    practice_path = folder / practice_file
 
     practice_cells = build_practice_cells(spec, filled=True)
     save_nb(practice_path, practice_cells, f"Занятие {n_pr}. Практика")
 
-    patch_exercises(exercises_path, n_th, n_pr, topic)
+    patch_exercises(exercises_path, n_th, n_pr, topic, practice_file)
     print("Wrote", practice_path.name)
 
 print("Done")
