@@ -1,21 +1,16 @@
 # CHANGELOG — 20_gradient_boosting
 
-## Pipeline ml-lesson-workflow (стадии 5–7)
+## Рецензия и правки (занятие 39)
 
-### 5. Технический review
-- `gradient_boosting_theory.ipynb` и `gradient_boosting_practice_solution.ipynb` выполнены без ошибок.
-- Staged MAE, early stopping, сравнение с RF — проверены на `make_regression`.
-- Нумерация: теория **39**, практика **40**.
+### Теория (`gradient_boosting_theory.ipynb`)
+- **§3:** пояснение, что для MSE остаток — направление сдвига прогноза.
+- **§5:** связь микро-примера (пп. 1–4) со сквозным `make_regression`; введение train/validation через `train_test_split`.
+- **§7 / §8:** разделены post-hoc кривая и early stopping; определение early stopping перенесено в §8; упоминание test.
+- **Early stopping:** `learning_rate=0.1` — демо останавливается на 258 деревьях из 350.
+- **metadata:** единое имя «Занятие 39. Градиентный бустинг».
 
-### 6. Методический review
-- Упражнения: 8 задач с **п.** теории.
-- Практика: сравнение с RF → **п. 13**; bagging vs boosting → **п. 12**.
+### Упражнения (`gradient_boosting_exercises.ipynb`)
+- Убраны `(п. N)` из заголовков задач (ссылка на теорию — только в шапке).
 
-### 6b. Филолог
-- metadata `name` синхронизированы.
-
-### 6c. Student Reader
-- См. `STUDENT_REVIEW.md`.
-
-### 7. Final Editor
-- Комплект готов. Solution — только преподавателю.
+### Student Reader
+- Расширен `STUDENT_REVIEW.md` (6 типичных вопросов по теории и практике).
