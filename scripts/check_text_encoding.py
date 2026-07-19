@@ -18,6 +18,14 @@ SUSPICIOUS_PATTERNS = (
 )
 
 CHECK_EXTENSIONS = {".ipynb", ".md", ".py", ".mdc", ".json", ".yaml", ".yml", ".txt"}
+SKIP_DIRS = {
+    ".git",
+    ".codex_competition_pydeps",
+    ".codex_mpl_cache",
+    "__pycache__",
+    ".ipynb_checkpoints",
+    "catboost_info",
+}
 IGNORE_LINE_CONTAINS = (
     "SUSPICIOUS_PATTERNS",
     "кракозябр",
@@ -36,6 +44,8 @@ def all_files(repo_root: Path) -> list[Path]:
 
 
 def should_check(path: Path) -> bool:
+    if any(part in SKIP_DIRS for part in path.parts):
+        return False
     return path.suffix.lower() in CHECK_EXTENSIONS
 
 

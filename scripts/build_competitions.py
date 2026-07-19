@@ -166,7 +166,7 @@ def make_linear_data(n_train: int = 700, n_test: int = 300) -> None:
     test_full = df.iloc[n_train:].copy()
     test = test_full.drop(columns=["price_mln"])
 
-    out = ROOT / "15_linear_regression" / "competition" / "data"
+    out = ROOT / "13_linear_regression" / "competition" / "data"
     out.mkdir(parents=True, exist_ok=True)
     train.to_csv(out / "train.csv", index=False, encoding="utf-8")
     test.to_csv(out / "test.csv", index=False, encoding="utf-8")
@@ -247,7 +247,7 @@ def make_logistic_data(n_train: int = 800, n_test: int = 350) -> None:
     test_full = df.iloc[n_train:].copy()
     test = test_full.drop(columns=["will_finish"])
 
-    out = ROOT / "16_logistic_regression" / "competition" / "data"
+    out = ROOT / "14_logistic_regression" / "competition" / "data"
     out.mkdir(parents=True, exist_ok=True)
     train.to_csv(out / "train.csv", index=False, encoding="utf-8")
     test.to_csv(out / "test.csv", index=False, encoding="utf-8")
@@ -362,7 +362,7 @@ def make_ensemble_data(n_train: int = 1000, n_test: int = 500) -> None:
 LINEAR_STUDENT = [
     md(
         """
-# Занятие 30. Практика: линейная регрессия и цена квартиры
+# Занятие 26. Практика: линейная регрессия и цена квартиры
 
 Это второе занятие по теме линейной регрессии: практическая работа в формате учебного leaderboard. Команды по 1–2 человека строят модель, сохраняют `submission.csv`, а преподаватель считает результат на скрытой test-выборке.
 
@@ -645,7 +645,7 @@ submission.head()
 LOGISTIC_STUDENT = [
     md(
         """
-# Занятие 32. Практика: логистическая регрессия и завершение курса
+# Занятие 28. Практика: логистическая регрессия и завершение курса
 
 Это второе занятие по теме логистической регрессии: практическая работа в формате учебного leaderboard. Команды по 1–2 человека строят модель, сохраняют `submission.csv`, а преподаватель считает результат на скрытой test-выборке.
 
@@ -1451,8 +1451,8 @@ def write_materials() -> None:
     make_logistic_data()
     make_ensemble_data()
 
-    linear_root = ROOT / "15_linear_regression"
-    logistic_root = ROOT / "16_logistic_regression"
+    linear_root = ROOT / "13_linear_regression"
+    logistic_root = ROOT / "14_logistic_regression"
     linear_dir = linear_root / "competition"
     logistic_dir = logistic_root / "competition"
     ensemble_dir = ROOT / "final_ensemble_competition"
@@ -1479,7 +1479,7 @@ def write_materials() -> None:
     write_readme(
         linear_dir / "README.md",
         """
-# Занятие 30. Практика: линейная регрессия
+# Занятие 26. Практика: линейная регрессия
 
 Участникам раздать:
 
@@ -1501,7 +1501,7 @@ def write_materials() -> None:
     write_readme(
         logistic_dir / "README.md",
         """
-# Занятие 32. Практика: логистическая регрессия
+# Занятие 28. Практика: логистическая регрессия
 
 Участникам раздать:
 

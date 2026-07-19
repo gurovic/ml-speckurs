@@ -1212,7 +1212,7 @@ submission.head()
 def main() -> None:
     materials = [
         (
-            ROOT / "15_linear_regression" / "competition",
+            ROOT / "13_linear_regression" / "competition",
             LINEAR_NOTES,
             LINEAR_BASELINE,
             LINEAR_AUTHOR,
@@ -1227,7 +1227,7 @@ def main() -> None:
 """,
         ),
         (
-            ROOT / "16_logistic_regression" / "competition",
+            ROOT / "14_logistic_regression" / "competition",
             LOGISTIC_NOTES,
             LOGISTIC_BASELINE,
             LOGISTIC_AUTHOR,

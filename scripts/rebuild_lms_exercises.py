@@ -45,10 +45,10 @@ def write(path: str, cells: list[dict]) -> None:
 
 
 EXERCISES: dict[str, list[dict]] = {
-    "13_workflow/workflow_exercises.ipynb": [
+    "11_workflow/workflow_exercises.ipynb": [
         md(
             """
-# Занятие 25. Мини-задачки: ML workflow и kNN
+# Занятие 21. Мини-задачки: ML workflow и kNN
 
 Короткая проверка понимания теории из `workflow_theory.ipynb`.
 
@@ -186,10 +186,10 @@ EXERCISES: dict[str, list[dict]] = {
 """
         ),
     ],
-    "14_feature_engineering/feature_engineering_exercises.ipynb": [
+    "12_feature_engineering/feature_engineering_exercises.ipynb": [
         md(
             """
-# Занятие 27. Мини-задачки: конструирование признаков
+# Занятие 23. Мини-задачки: конструирование признаков
 
 Короткая проверка понимания теории из `feature_engineering_theory.ipynb`.
 
@@ -303,10 +303,10 @@ EXERCISES: dict[str, list[dict]] = {
 """
         ),
     ],
-    "15_linear_regression/linear_regression_exercises.ipynb": [
+    "13_linear_regression/linear_regression_exercises.ipynb": [
         md(
             """
-# Занятие 29. Мини-задачки: линейная регрессия
+# Занятие 25. Мини-задачки: линейная регрессия
 
 Короткая проверка понимания теории из `linear_regression_theory.ipynb`.
 
@@ -405,10 +405,10 @@ EXERCISES: dict[str, list[dict]] = {
 """
         ),
     ],
-    "16_logistic_regression/logistic_regression_exercises.ipynb": [
+    "14_logistic_regression/logistic_regression_exercises.ipynb": [
         md(
             """
-# Занятие 31. Мини-задачки: логистическая регрессия
+# Занятие 27. Мини-задачки: логистическая регрессия
 
 Короткая проверка понимания теории из `logistic_regression_theory.ipynb`.
 
@@ -544,10 +544,10 @@ EXERCISES: dict[str, list[dict]] = {
 """
         ),
     ],
-    "17_overfitting_validation/overfitting_validation_exercises.ipynb": [
+    "15_overfitting_validation/overfitting_validation_exercises.ipynb": [
         md(
             """
-# Занятие 33. Мини-задачки: переобучение и валидация
+# Занятие 29. Мини-задачки: переобучение и валидация
 
 Короткая проверка понимания теории из `overfitting_validation_theory.ipynb`.
 
@@ -649,10 +649,10 @@ Train MSE и validation MSE обе большие и почти одинаков
 """
         ),
     ],
-    "18_decision_tree/decision_tree_exercises.ipynb": [
+    "16_decision_tree/decision_tree_exercises.ipynb": [
         md(
             """
-# Занятие 35. Мини-задачки: решающее дерево
+# Занятие 31. Мини-задачки: решающее дерево
 
 Короткая проверка понимания теории из `decision_tree_theory.ipynb`.
 
@@ -751,10 +751,10 @@ Train MSE и validation MSE обе большие и почти одинаков
 """
         ),
     ],
-    "19_bagging_random_forest/bagging_random_forest_exercises.ipynb": [
+    "17_bagging_random_forest/bagging_random_forest_exercises.ipynb": [
         md(
             """
-# Занятие 37. Мини-задачки: bagging и случайный лес
+# Занятие 33. Мини-задачки: bagging и случайный лес
 
 Короткая проверка понимания теории из `bagging_random_forest_theory.ipynb`.
 
@@ -853,10 +853,10 @@ Train accuracy = 0,99, validation accuracy = 0,76.
 """
         ),
     ],
-    "20_gradient_boosting/gradient_boosting_exercises.ipynb": [
+    "18_gradient_boosting/gradient_boosting_exercises.ipynb": [
         md(
             """
-# Занятие 39. Мини-задачки: градиентный бустинг
+# Занятие 35. Мини-задачки: градиентный бустинг
 
 Короткая проверка понимания теории из `gradient_boosting_theory.ipynb`.
 

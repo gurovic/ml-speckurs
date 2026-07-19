@@ -8,7 +8,7 @@ from pathlib import Path
 
 NOTEBOOK = (
     Path(__file__).resolve().parents[1]
-    / "17_overfitting_validation/overfitting_validation_exercises.ipynb"
+    / "15_overfitting_validation/overfitting_validation_exercises.ipynb"
 )
 
 
@@ -29,9 +29,9 @@ def code(src: str) -> dict:
 def build_cells() -> list[dict]:
     return [
         md(
-            """# Занятие 33. Упражнения: переобучение и валидация
+            """# Занятие 29. Упражнения: переобучение и валидация
 
-Короткая проверка теории (`overfitting_validation_theory.ipynb`, занятие 33). Сквозной код — в `overfitting_validation_practice.ipynb` (занятие 34)."""
+Короткая проверка теории (`overfitting_validation_theory.ipynb`, занятие 29). Сквозной код — в `overfitting_validation_practice.ipynb` (занятие 30)."""
         ),
         code("import numpy as np\nimport pandas as pd\n"),
         md("## 1. Validation error (п. 1)\n\nНа каких данных считают **validation error**?"),

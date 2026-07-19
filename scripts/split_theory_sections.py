@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # old_section -> new section(s); int means single new number, tuple means range
 REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
-    "13_workflow": {
+    "11_workflow": {
         1: 1,
         2: 2,
         3: 3,
@@ -32,7 +32,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         17: 19,
         18: 20,
     },
-    "14_feature_engineering": {
+    "12_feature_engineering": {
         **{i: i for i in range(1, 13)},
         13: (13, 14),
         14: 15,
@@ -40,7 +40,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         16: 17,
         17: 18,
     },
-    "15_linear_regression": {
+    "13_linear_regression": {
         **{i: i for i in range(1, 7)},
         7: (7, 8),
         8: 9,
@@ -52,7 +52,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         14: 15,
         15: 16,
     },
-    "16_logistic_regression": {
+    "14_logistic_regression": {
         **{i: i for i in range(1, 11)},
         11: (11, 12),
         12: 13,
@@ -66,7 +66,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         20: (23, 24),
         21: 25,
     },
-    "18_decision_tree": {
+    "16_decision_tree": {
         **{i: i for i in range(1, 12)},
         12: 12,
         13: (13, 14),
@@ -75,7 +75,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         16: 17,
         17: 18,
     },
-    "19_bagging_random_forest": {
+    "17_bagging_random_forest": {
         **{i: i for i in range(1, 11)},
         11: (11, 12),
         12: 13,
@@ -84,7 +84,7 @@ REF_MAPS: dict[str, dict[int, int | tuple[int, int]]] = {
         15: 16,
         16: 17,
     },
-    "20_gradient_boosting": {
+    "18_gradient_boosting": {
         **{i: i for i in range(1, 8)},
         8: (8, 9),
         9: 10,
@@ -369,7 +369,7 @@ def apply_logistic_regression_splits(nb: dict) -> dict:
                 c,
                 "## 14. Первый честный test\n\n"
                 "После выбора модели, порога и метрики на validation **один раз** открывают test. "
-                "Повторные правки по test делают его оценку оптимистичной (см. занятие 33, п. 6).\n",
+                "Повторные правки по test делают его оценку оптимистичной (см. занятие 29, п. 6).\n",
             )
             cells = insert_markdown_after(
                 cells,
@@ -523,7 +523,7 @@ def apply_boosting_splits(nb: dict) -> dict:
                 i,
                 "## 9. Когда внутренняя validation неверна\n\n"
                 "Early stopping и post-hoc выбор требуют честной validation: при временных рядах и группах объектов "
-                "случайный split может завышать качество. Используют разбиение по времени или группам (занятие 33, п. 12).\n",
+                "случайный split может завышать качество. Используют разбиение по времени или группам (занятие 29, п. 12).\n",
             )
             break
 
@@ -588,13 +588,13 @@ def apply_boosting_splits(nb: dict) -> dict:
 
 
 SPLITTERS = {
-    "13_workflow/workflow_theory.ipynb": apply_workflow_splits,
-    "14_feature_engineering/feature_engineering_theory.ipynb": apply_feature_engineering_splits,
-    "15_linear_regression/linear_regression_theory.ipynb": apply_linear_regression_splits,
-    "16_logistic_regression/logistic_regression_theory.ipynb": apply_logistic_regression_splits,
-    "18_decision_tree/decision_tree_theory.ipynb": apply_decision_tree_splits,
-    "19_bagging_random_forest/bagging_random_forest_theory.ipynb": apply_bagging_splits,
-    "20_gradient_boosting/gradient_boosting_theory.ipynb": apply_boosting_splits,
+    "11_workflow/workflow_theory.ipynb": apply_workflow_splits,
+    "12_feature_engineering/feature_engineering_theory.ipynb": apply_feature_engineering_splits,
+    "13_linear_regression/linear_regression_theory.ipynb": apply_linear_regression_splits,
+    "14_logistic_regression/logistic_regression_theory.ipynb": apply_logistic_regression_splits,
+    "16_decision_tree/decision_tree_theory.ipynb": apply_decision_tree_splits,
+    "17_bagging_random_forest/bagging_random_forest_theory.ipynb": apply_bagging_splits,
+    "18_gradient_boosting/gradient_boosting_theory.ipynb": apply_boosting_splits,
 }
 
 
@@ -636,7 +636,7 @@ def update_folder_refs(folder: str) -> None:
 
 def fix_workflow_internal_refs(nb: dict) -> dict:
     """Manual fixes after split for workflow-specific wording."""
-    ref_map = REF_MAPS["13_workflow"]
+    ref_map = REF_MAPS["11_workflow"]
     for cell in nb["cells"]:
         if cell.get("source"):
             cell["source"] = [update_refs_in_text("".join(cell["source"]), ref_map)]
@@ -691,7 +691,7 @@ def main() -> None:
         print(f"Split: {rel}")
         nb = load_nb(path)
         nb = splitter(nb)
-        if "13_workflow" in rel:
+        if "11_workflow" in rel:
             nb = fix_workflow_internal_refs(nb)
         save_nb(path, nb)
 

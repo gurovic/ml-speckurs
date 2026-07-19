@@ -8,7 +8,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[1] / "13_workflow"
+ROOT = Path(__file__).resolve().parents[1] / "11_workflow"
 IMG = ROOT / "practice_images"
 IMG.mkdir(exist_ok=True)
 

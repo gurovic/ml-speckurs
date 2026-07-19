@@ -195,7 +195,7 @@ Skill: ml-lesson-workflow, фаза Student Reader.
 ## Пример: новая тема «логистическая регрессия»
 
 ```
-@ml-lesson-workflow Full pipeline для 16_logistic_regression/
+@ml-lesson-workflow Full pipeline для 14_logistic_regression/
 
 Модель: LogisticRegression, датасет: тот же breast_cancer или iris для multiclass секции.
 Практика: студент пишет код сам, ~90 мин.
