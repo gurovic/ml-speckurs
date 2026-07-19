@@ -1,4 +1,4 @@
-"""Pipeline stages 5-7 for topics 17-20: review, fixes, execute, CHANGELOG."""
+"""Pipeline stages 5-7 for topics 15-18: review, fixes, execute, CHANGELOG."""
 import json
 import re
 from pathlib import Path
@@ -9,8 +9,8 @@ TOPICS = [
     {
         "folder": "15_overfitting_validation",
         "prefix": "overfitting_validation",
-        "n": 33,
-        "np": 34,
+        "n": 29,
+        "np": 30,
         "topic_ru": "переобучение и валидация",
         "meta_theory": "Занятие 29. Переобучение и валидация",
         "exercise_refs": [
@@ -27,8 +27,8 @@ TOPICS = [
     {
         "folder": "16_decision_tree",
         "prefix": "decision_tree",
-        "n": 35,
-        "np": 36,
+        "n": 31,
+        "np": 32,
         "topic_ru": "решающее дерево",
         "meta_theory": "Занятие 31. Решающее дерево",
         "exercise_refs": [
@@ -45,8 +45,8 @@ TOPICS = [
     {
         "folder": "17_bagging_random_forest",
         "prefix": "bagging_random_forest",
-        "n": 37,
-        "np": 38,
+        "n": 33,
+        "np": 34,
         "topic_ru": "bagging и случайный лес",
         "meta_theory": "Занятие 33. Bagging и случайный лес",
         "exercise_refs": [
@@ -63,8 +63,8 @@ TOPICS = [
     {
         "folder": "18_gradient_boosting",
         "prefix": "gradient_boosting",
-        "n": 39,
-        "np": 40,
+        "n": 35,
+        "np": 36,
         "topic_ru": "градиентный бустинг",
         "meta_theory": "Занятие 35. Градиентный бустинг",
         "exercise_refs": [
@@ -149,8 +149,7 @@ def create_outline(folder: Path, n: int, np_: int):
 |------|--------|
 | theory | ✓ |
 | exercises | ✓ |
-| practice | ✓ |
-| practice_solution | ✓ (преподаватель) |
+| practice | ✓ канонический блокнот с условиями, ответами и LLM-критериями |
 """
     (folder / "LESSON_OUTLINE.md").write_text(outline, encoding="utf-8")
 
@@ -161,18 +160,18 @@ def create_changelog(folder: Path, prefix: str, n: int, np_: int):
 ## Pipeline ml-lesson-workflow (стадии 5–7)
 
 ### Технический review
-- Проверены и перезапущены `{prefix}_theory.ipynb` и `{prefix}_practice_solution.ipynb`.
+- Проверены и перезапущены `{prefix}_theory.ipynb` и `{prefix}_practice.ipynb`.
 - Нумерация: теория **{n}**, практика **{np_}**.
 
 ### Методический review
 - Упражнения: ссылки на **п.** теории; intro с занятиями {n}/{np_}.
-- Практика: пустые code-ячейки; ссылки на п. теории.
+- Практика: условия, code-ответы и подробные критерии для LLM-проверки; ссылки на п. теории.
 
 ### Филолог / школьник
 - metadata `name` синхронизированы во всех ноутбуках.
 
 ### Final Editor
-- Комплект из 4 ноутбуков готов к выдаче (solution — только преподавателю).
+- Комплект ноутбуков готов: теория, упражнения и практика.
 """
     (folder / "CHANGELOG.md").write_text(text, encoding="utf-8")
 

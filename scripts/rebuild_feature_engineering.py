@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild lesson 12_feature_engineering: theory, exercises, practice, solution.
+"""Rebuild lesson 12_feature_engineering: theory, exercises, practice.
 
 Сквозной датасет: таблица объявлений о продаже квартир (flats), цель — цена.
 """
@@ -10,10 +10,43 @@ import json
 from pathlib import Path
 
 FOLDER = Path(__file__).resolve().parents[1] / "12_feature_engineering"
+CRITERION_MARKER = "@@CRITERION@@"
+
+
+def expand_short_criteria(text: str) -> str:
+    out: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(CRITERION_MARKER):
+            criterion = stripped.removeprefix(CRITERION_MARKER).strip().rstrip(".")
+            if out and out[-1] != "":
+                out.append("")
+            out.extend(
+                [
+                    "### Подробные критерии (для проверки LLM)",
+                    "",
+                    "- Выполнены все действия, перечисленные в условии задания.",
+                    f"- Проверочный ориентир: {criterion}.",
+                    "- Если задание требует код, код запускается без ошибок и создаёт названные в условии переменные, таблицы или графики.",
+                    "- Если задание требует текстовый вывод, вывод опирается на полученные числа, таблицы или графики, а не на общие рассуждения.",
+                    "",
+                    "### Снижение баллов",
+                    "",
+                    "- Отсутствует ключевой объект из условия (переменная, таблица, график или текстовый вывод) → существенное снижение.",
+                    "- Использована не та выборка для обучения, подбора или оценки качества → существенное снижение.",
+                    "- Код не запускается из-за ошибки или результат не связан с условием задания → существенное снижение.",
+                    "- Текстовый вывод не объясняет полученный результат или противоречит числам/графикам → снижение.",
+                ]
+            )
+        else:
+            out.append(line.rstrip())
+    while out and out[-1] == "":
+        out.pop()
+    return "\n".join(out)
 
 
 def md(text: str) -> dict:
-    return {"cell_type": "markdown", "metadata": {}, "source": [text]}
+    return {"cell_type": "markdown", "metadata": {}, "source": [expand_short_criteria(text)]}
 
 
 def code(src: str) -> dict:
@@ -546,9 +579,8 @@ def practice_cells(with_solutions: bool) -> list[dict]:
     )
     if with_solutions:
         header = (
-            "# Занятие 24. Практика: признаки — РЕШЕНИЕ\n\n"
-            "**Только для преподавателя. Не выдавать студентам.**\n\n"
-            "Эталонные решения заданий 0–9 из `feature_engineering_practice.ipynb`."
+            "# Занятие 24. Практика: признаки для цены квартиры (~90 мин)\n\n"
+            "Авторский вариант практики: в блокноте есть условия, ответы и подробные критерии для LLM-проверки."
         )
 
     return [
@@ -569,7 +601,7 @@ def practice_cells(with_solutions: bool) -> list[dict]:
 1. Создайте словарь `task_spec` с ключами `объект`, `цель`, `тип_задачи`, `момент_прогноза`.
 2. Назовите в комментарии один признак, который **нельзя** строить (утечка), и почему.
 
-**Критерий:** словарь заполнен; пример утечки назван."""
+@@CRITERION@@ словарь заполнен; пример утечки назван."""
         ),
         task_code(
             """task_spec = {
@@ -591,7 +623,7 @@ task_spec
 1. Разбейте `flats` на `flats_train` и `flats_val` (70/30, `random_state=RANDOM_STATE`).
 2. Выведите размеры.
 
-**Критерий:** 210 / 90 объектов; дальше всё «обучаемое» — только по train."""
+@@CRITERION@@ 210 / 90 объектов; дальше всё «обучаемое» — только по train."""
         ),
         task_code(
             """from sklearn.model_selection import train_test_split
@@ -609,7 +641,7 @@ print('train:', len(flats_train), '| validation:', len(flats_val))
 1. `площадь_на_комнату` = площадь / комнаты.
 2. `log_просмотры` = `np.log1p(просмотры_за_месяц)`.
 
-**Критерий:** новые столбцы есть в train и val; значения без NaN."""
+@@CRITERION@@ новые столбцы есть в train и val; значения без NaN."""
         ),
         task_code(
             """for table in (flats_train, flats_val):
@@ -627,7 +659,7 @@ flats_train[['площадь_на_комнату', 'log_просмотры']].de
 1. `месяц` из даты; `месяц_sin`, `месяц_cos` (цикличность).
 2. `дней_с_публикации` = `PREDICTION_DATE` − дата.
 
-**Критерий:** `дней_с_публикации` ≥ 0 для всех строк."""
+@@CRITERION@@ `дней_с_публикации` ≥ 0 для всех строк."""
         ),
         task_code(
             """for table in (flats_train, flats_val):
@@ -648,7 +680,7 @@ flats_train[['месяц', 'месяц_sin', 'месяц_cos', 'дней_с_пу
 1. `OneHotEncoder(handle_unknown='ignore')` для `район`: `fit` на train, `transform` на train и val.
 2. `OrdinalEncoder` для `состояние` с явным порядком: требует ремонта < среднее < хорошее; столбец `состояние_код` в обеих таблицах.
 
-**Критерий:** кодировщики обучены только на train; в val нет ошибок."""
+@@CRITERION@@ кодировщики обучены только на train; в val нет ошибок."""
         ),
         task_code(
             """from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder
@@ -677,7 +709,7 @@ print('One-hot столбцы:', district_cols)
 1. `доход_пропущен` — индикатор 0/1 в обеих таблицах.
 2. `доход_заполнен` — NaN заменены **медианой train**.
 
-**Критерий:** медиана посчитана только по train; NaN не осталось."""
+@@CRITERION@@ медиана посчитана только по train; NaN не осталось."""
         ),
         task_code(
             """median_income = flats_train['доход_района'].median()
@@ -698,7 +730,7 @@ print('Медиана train:', round(median_income, 1))
 2. Pipeline: `StandardScaler` + `KNeighborsRegressor(n_neighbors=5)`.
 3. Обучите на train, посчитайте **MAE на validation** → `mae_base`.
 
-**Критерий:** scaler обучается внутри pipeline только на train."""
+@@CRITERION@@ scaler обучается внутри pipeline только на train."""
         ),
         task_code(
             """from sklearn.neighbors import KNeighborsRegressor
@@ -729,7 +761,7 @@ print('MAE базовый набор:', round(mae_base, 3), 'млн')
 - `+ ['состояние_код', 'балкон']`
 - `+ one-hot районов`
 
-**Критерий:** таблица «набор → MAE»; выводы о том, какая группа помогла."""
+@@CRITERION@@ таблица «набор → MAE»; выводы о том, какая группа помогла."""
         ),
         task_code(
             """candidate_groups = {
@@ -750,7 +782,7 @@ pd.Series(results).round(3).to_frame('MAE, млн')
 1. Соберите набор из базового + всех групп, которые **улучшили** MAE в задании 7.
 2. Посчитайте `mae_final` на validation и сравните с `mae_base`.
 
-**Критерий:** `mae_final` ≤ `mae_base`; состав набора обоснован результатами задания 7."""
+@@CRITERION@@ `mae_final` ≤ `mae_base`; состав набора обоснован результатами задания 7."""
         ),
         task_code(
             """final_features = base_features + candidate_groups['состояние+балкон'] + candidate_groups['район (one-hot)']
@@ -769,7 +801,7 @@ print('MAE база:', round(mae_base, 3), '→ MAE финал:', round(mae_fina
 2. Какой признак вы **не стали** строить из-за утечки?
 3. Что нужно не забыть при применении модели к завтрашним объявлениям (кодировщики, медиана, масштаб)?
 
-**Критерий:** ответы ссылаются на числа из заданий 7–8, а не «кажется»."""
+@@CRITERION@@ ответы ссылаются на числа из заданий 7–8, а не «кажется»."""
         ),
         md(
             "*Ответ студента.*"
@@ -805,12 +837,7 @@ def write_nb(path: Path, cells: list[dict], name: str) -> None:
 def main() -> None:
     write_nb(FOLDER / "feature_engineering_theory.ipynb", theory_cells(), "feature_engineering_theory")
     write_nb(FOLDER / "feature_engineering_exercises.ipynb", exercises_cells(), "feature_engineering_exercises")
-    write_nb(FOLDER / "feature_engineering_practice.ipynb", practice_cells(False), "feature_engineering_practice")
-    write_nb(
-        FOLDER / "feature_engineering_practice_solution.ipynb",
-        practice_cells(True),
-        "feature_engineering_practice_solution",
-    )
+    write_nb(FOLDER / "feature_engineering_practice.ipynb", practice_cells(True), "feature_engineering_practice")
 
 
 if __name__ == "__main__":

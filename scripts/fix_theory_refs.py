@@ -37,8 +37,6 @@ REPLACEMENTS: list[tuple[str, str, str]] = [
     ("18_gradient_boosting/gradient_boosting_exercises.ipynb", "## 7. Глубина (п. 8–9)", "## 7. Глубина (п. 5)"),
     ("18_gradient_boosting/gradient_boosting_exercises.ipynb", "## 8. Масштаб (п. 10)", "## 8. Масштаб (п. 14)"),
     ("18_gradient_boosting/gradient_boosting_practice.ipynb", "пп. 4–9 теории", "пп. 4–9 теории"),
-    ("18_gradient_boosting/gradient_boosting_practice_solution.ipynb", "По п. 7–8.", "По п. 7."),
-    ("18_gradient_boosting/gradient_boosting_practice_solution.ipynb", "По п. 8–9.", "По п. 8–9."),
 ]
 
 

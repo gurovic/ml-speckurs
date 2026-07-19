@@ -1,11 +1,45 @@
-"""Generate practice + practice_solution for topics 17-20."""
+"""Generate canonical practice notebooks with answers for topics 15-18."""
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+CRITERION_MARKER = "@@CRITERION@@"
+
+
+def expand_short_criteria(text: str) -> str:
+    out: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(CRITERION_MARKER):
+            criterion = stripped.removeprefix(CRITERION_MARKER).strip().rstrip(".")
+            if out and out[-1] != "":
+                out.append("")
+            out.extend(
+                [
+                    "### Подробные критерии (для проверки LLM)",
+                    "",
+                    "- Выполнены все действия, перечисленные в условии задания.",
+                    f"- Проверочный ориентир: {criterion}.",
+                    "- Если задание требует код, код запускается без ошибок и создаёт названные в условии переменные, таблицы или графики.",
+                    "- Если задание требует текстовый вывод, вывод опирается на полученные числа, таблицы или графики, а не на общие рассуждения.",
+                    "",
+                    "### Снижение баллов",
+                    "",
+                    "- Отсутствует ключевой объект из условия (переменная, таблица, график или текстовый вывод) → существенное снижение.",
+                    "- Использована не та выборка для обучения, подбора или оценки качества → существенное снижение.",
+                    "- Код не запускается из-за ошибки или результат не связан с условием задания → существенное снижение.",
+                    "- Текстовый вывод не объясняет полученный результат или противоречит числам/графикам → снижение.",
+                ]
+            )
+        else:
+            out.append(line.rstrip())
+    while out and out[-1] == "":
+        out.pop()
+    return "\n".join(out)
 
 
 def md(text: str) -> dict:
+    text = expand_short_criteria(text)
     lines = text.split("\n")
     src = [ln + "\n" for ln in lines[:-1]] + ([lines[-1]] if lines else [])
     return {"cell_type": "markdown", "metadata": {}, "source": src}
@@ -45,7 +79,7 @@ def practice_header(n_theory: int, n_practice: int, title: str, model: str, theo
     return md(
         f"""# Занятие {n_practice}. Практика: {title} (~90 мин)
 
-Вы **пишете весь код сами**. Ячейку **«Дано»** не меняйте.
+Авторский вариант практики: в блокноте есть условия, ответы и подробные критерии для LLM-проверки.
 
 Главная модель — **{model}** (теория — занятие {n_theory}, `{theory_file}`).
 
@@ -109,7 +143,7 @@ print('Объектов:', len(X))""",
 
 Константы: `RANDOM_STATE = 42`, разбиение **70% train / 30% validation** (как в теории, п. 4).
 
-**Критерий:** получены `X_train`, `X_val`, `y_train`, `y_val`.""",
+@@CRITERION@@ получены `X_train`, `X_val`, `y_train`, `y_val`.""",
             "solution": """from sklearn.model_selection import train_test_split, learning_curve, cross_validate, KFold
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
@@ -131,7 +165,7 @@ print('train / val:', len(X_train), len(X_val))""",
 2. Обучите `LinearRegression`, посчитайте **MSE** на train и validation.
 3. Постройте график «степень → MSE».
 
-**Критерий:** виден U-образный (или похожий) validation MSE; train MSE падает монотонно.""",
+@@CRITERION@@ виден U-образный (или похожий) validation MSE; train MSE падает монотонно.""",
             "solution": """degrees = range(1, 16)
 train_scores, val_scores = [], []
 for degree in degrees:
@@ -161,7 +195,7 @@ print('Лучшая степень по validation:', best_degree)""",
 
 Сравните train vs validation MSE. В markdown ниже: где недообучение, где переобучение? (п. 2)
 
-**Критерий:** для большой степени train MSE << validation MSE.""",
+@@CRITERION@@ для большой степени train MSE << validation MSE.""",
             "solution": """for d in [best_degree, 14]:
     poly = PolynomialFeatures(degree=d, include_bias=False)
     Xtr = poly.fit_transform(X_train)
@@ -178,7 +212,7 @@ print('Лучшая степень по validation:', best_degree)""",
             "min": 15,
             "body": """По мотивам п. 8. Для `best_degree` постройте **learning curve** (`learning_curve`, 5-fold CV, `neg_mean_squared_error`).
 
-**Критерий:** график train vs CV MSE от размера train.""",
+@@CRITERION@@ график train vs CV MSE от размера train.""",
             "solution": """poly_best = PolynomialFeatures(degree=best_degree, include_bias=False)
 X_poly = poly_best.fit_transform(X)
 cv = KFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
@@ -202,7 +236,7 @@ plt.show()""",
             "min": 12,
             "body": """По мотивам п. 9. `cross_validate` с 5-fold для модели с `best_degree`. Выведите среднюю validation MSE и std.
 
-**Критерий:** напечатаны `test_score` (отрицательный MSE) и среднее.""",
+@@CRITERION@@ напечатаны `test_score` (отрицательный MSE) и среднее.""",
             "solution": """result = cross_validate(
     LinearRegression(), X_poly, y, cv=cv,
     scoring='neg_mean_squared_error', return_train_score=True,
@@ -216,7 +250,7 @@ print('Средняя validation MSE:', round(-result['test_score'].mean(), 3))"
             "min": 8,
             "body": """В markdown: что в этом эксперименте **параметр** модели, а что **гиперпараметр**? (п. 6)
 
-**Критерий:** степень полинома — гиперпараметр; коэффициенты регрессии — параметры.""",
+@@CRITERION@@ степень полинома — гиперпараметр; коэффициенты регрессии — параметры.""",
             "solution": "",
         },
         {
@@ -225,7 +259,7 @@ print('Средняя validation MSE:', round(-result['test_score'].mean(), 3))"
             "min": 10,
             "body": """По мотивам п. 14. Объясните в markdown: почему `poly.fit_transform` на **всей** таблице до split — утечка?
 
-**Критерий:** validation/test «видят» статистику из своих строк.""",
+@@CRITERION@@ validation/test «видят» статистику из своих строк.""",
             "solution": "",
         },
         {
@@ -234,7 +268,7 @@ print('Средняя validation MSE:', round(-result['test_score'].mean(), 3))"
             "min": 12,
             "body": """Обучите финальную модель: `best_degree`, `fit` poly на **train**, оцените MSE на **validation** ещё раз.
 
-**Критерий:** validation MSE близка к минимуму из задания 1.""",
+@@CRITERION@@ validation MSE близка к минимуму из задания 1.""",
             "solution": """poly_final = PolynomialFeatures(degree=best_degree, include_bias=False)
 Xtr = poly_final.fit_transform(X_train)
 Xva = poly_final.transform(X_val)
@@ -247,7 +281,7 @@ print('Final validation MSE:', round(mean_squared_error(y_val, final.predict(Xva
             "min": 5,
             "body": """В markdown: 3 вывода — validation curve, learning curve, честный fit poly только на train.
 
-**Критерий:** три коротких пункта.""",
+@@CRITERION@@ три коротких пункта.""",
             "solution": "",
         },
     ],
@@ -282,7 +316,7 @@ print('Объектов:', len(X), '| классы:', np.bincount(y))""",
             "min": 8,
             "body": """`train_test_split`, `DecisionTreeClassifier`, `accuracy_score`, `plot_tree`, `confusion_matrix`, `RANDOM_STATE=42`, split 65/35 со `stratify`.
 
-**Критерий:** `X_train`, `X_val`, `y_train`, `y_val`.""",
+@@CRITERION@@ `X_train`, `X_val`, `y_train`, `y_val`.""",
             "solution": """from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import accuracy_score, confusion_matrix
@@ -298,7 +332,7 @@ X_train, X_val, y_train, y_val = train_test_split(
             "min": 15,
             "body": """По п. 10. Обучите деревья с `max_depth` in `[1, 3, 6, None]`. Таблица train/validation accuracy.
 
-**Критерий:** при `None` train ≈ 1.0, validation хуже.""",
+@@CRITERION@@ при `None` train ≈ 1.0, validation хуже.""",
             "solution": """for d in [1, 3, 6, None]:
     m = DecisionTreeClassifier(max_depth=d, random_state=RANDOM_STATE).fit(X_train, y_train)
     tr = accuracy_score(y_train, m.predict(X_train))
@@ -311,7 +345,7 @@ X_train, X_val, y_train, y_val = train_test_split(
             "min": 15,
             "body": """Переберите `max_depth` от 1 до 12. Выберите лучший по **validation accuracy**.
 
-**Критерий:** переменная `best_depth`.""",
+@@CRITERION@@ переменная `best_depth`.""",
             "solution": """rows = []
 for d in range(1, 13):
     m = DecisionTreeClassifier(max_depth=d, random_state=RANDOM_STATE).fit(X_train, y_train)
@@ -338,7 +372,7 @@ plt.show()""",
             "min": 12,
             "body": """При фиксированном `best_depth` попробуйте `min_samples_leaf` in `[1, 5, 15]`. Сравните validation accuracy (п. 11).
 
-**Критерий:** таблица из 3 строк.""",
+@@CRITERION@@ таблица из 3 строк.""",
             "solution": """for leaf in [1, 5, 15]:
     m = DecisionTreeClassifier(max_depth=best_depth, min_samples_leaf=leaf, random_state=RANDOM_STATE).fit(X_train, y_train)
     print(f'min_samples_leaf={leaf} val acc={accuracy_score(y_val, m.predict(X_val)):.3f}')""",
@@ -349,7 +383,7 @@ plt.show()""",
             "min": 12,
             "body": """По п. 11 (post-pruning). Для полного дерева (`max_depth=None`) выведите число листьев при `ccp_alpha` in `[0, 0.005, 0.02, 0.08]`.
 
-**Критерий:** листьев становится меньше при росте alpha.""",
+@@CRITERION@@ листьев становится меньше при росте alpha.""",
             "solution": """for alpha in [0.0, 0.005, 0.02, 0.08]:
     m = DecisionTreeClassifier(ccp_alpha=alpha, random_state=RANDOM_STATE).fit(X_train, y_train)
     print(f'ccp_alpha={alpha} leaves={m.get_n_leaves()} depth={m.get_depth()}')""",
@@ -360,7 +394,7 @@ plt.show()""",
             "min": 10,
             "body": """Матрица ошибок лучшего дерева на validation.
 
-**Критерий:** `confusion_matrix(y_val, y_pred)`.""",
+@@CRITERION@@ `confusion_matrix(y_val, y_pred)`.""",
             "solution": """final = DecisionTreeClassifier(max_depth=best_depth, random_state=RANDOM_STATE).fit(X_train, y_train)
 y_pred = final.predict(X_val)
 print(confusion_matrix(y_val, y_pred))""",
@@ -371,7 +405,7 @@ print(confusion_matrix(y_val, y_pred))""",
             "min": 10,
             "body": """По п. 15. Выведите `feature_importances_`. Кратко в markdown: почему importance не доказывает причинность?
 
-**Критерий:** два числа importance.""",
+@@CRITERION@@ два числа importance.""",
             "solution": """print('importance:', final.feature_importances_)""",
         },
         {
@@ -380,7 +414,7 @@ print(confusion_matrix(y_val, y_pred))""",
             "min": 5,
             "body": """Три вывода: переобучение глубокого дерева, польза ограничений, интерпретируемость.
 
-**Критерий:** markdown с тремя пунктами.""",
+@@CRITERION@@ markdown с тремя пунктами.""",
             "solution": "",
         },
     ],
@@ -419,7 +453,7 @@ print('Объектов:', len(X))""",
             "min": 8,
             "body": """Импорты: `train_test_split`, `DecisionTreeClassifier`, `BaggingClassifier`, `RandomForestClassifier`, `accuracy_score`, `permutation_importance`. Split 70/30, stratify, `RANDOM_STATE=42`.
 
-**Критерий:** train/val готовы.""",
+@@CRITERION@@ train/val готовы.""",
             "solution": """from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import BaggingClassifier, RandomForestClassifier
@@ -437,7 +471,7 @@ X_train, X_val, y_train, y_val = train_test_split(
             "min": 15,
             "body": """По п. 8. Одно дерево, bagging (150 estimators), random forest (150). Train и validation accuracy.
 
-**Критерий:** лес ≥ bagging ≥ одно дерево на validation (обычно).""",
+@@CRITERION@@ лес ≥ bagging ≥ одно дерево на validation (обычно).""",
             "solution": """models = {
     'одно дерево': DecisionTreeClassifier(random_state=RANDOM_STATE),
     'bagging': BaggingClassifier(n_estimators=150, random_state=RANDOM_STATE, n_jobs=-1),
@@ -455,7 +489,7 @@ for name, m in models.items():
             "min": 15,
             "body": """По п. 9–10. График validation accuracy vs `n_estimators` in `[1,5,20,60,150,300]`.
 
-**Критерий:** кривая выходит на плато.""",
+@@CRITERION@@ кривая выходит на плато.""",
             "solution": """import matplotlib.pyplot as plt
 
 counts = [1, 5, 20, 60, 150, 300]
@@ -475,7 +509,7 @@ plt.show()""",
             "min": 10,
             "body": """По п. 7. `RandomForestClassifier(oob_score=True, n_estimators=300)`. Сравните OOB и validation accuracy.
 
-**Критерий:** оба числа напечатаны.""",
+@@CRITERION@@ оба числа напечатаны.""",
             "solution": """forest_oob = RandomForestClassifier(
     n_estimators=300, oob_score=True, random_state=RANDOM_STATE, n_jobs=-1
 ).fit(X_train, y_train)
@@ -488,7 +522,7 @@ print('Val:', round(accuracy_score(y_val, forest_oob.predict(X_val)), 3))""",
             "min": 12,
             "body": """Подберите `max_depth` in `[None, 5, 10, 20]` при `n_estimators=150`. Лучший по validation.
 
-**Критерий:** `best_depth` выбран.""",
+@@CRITERION@@ `best_depth` выбран.""",
             "solution": """best = (-1, None)
 for d in [None, 5, 10, 20]:
     m = RandomForestClassifier(n_estimators=150, max_depth=d, random_state=RANDOM_STATE, n_jobs=-1).fit(X_train, y_train)
@@ -503,7 +537,7 @@ print('best max_depth:', best[1], 'val acc:', round(best[0], 3))""",
             "min": 12,
             "body": """По п. 3. Сгенерируйте bootstrap-индексы длины n из `len(X_train)` с `replace=True`. Сколько **уникальных** объектов в среднем попадёт в выборку? (100 повторов)
 
-**Критерий:** ~632 при n=1000 (63.2%).""",
+@@CRITERION@@ ~632 при n=1000 (63.2%).""",
             "solution": """rng = np.random.default_rng(RANDOM_STATE)
 n = len(X_train)
 uniq = [len(np.unique(rng.choice(n, n, replace=True))) for _ in range(100)]
@@ -515,7 +549,7 @@ print('Среднее уникальных:', round(np.mean(uniq), 1))""",
             "min": 15,
             "body": """По п. 14. `permutation_importance` для леса на validation, top-5 признаков.
 
-**Критерий:** barh или таблица top-5.""",
+@@CRITERION@@ barh или таблица top-5.""",
             "solution": """rf = RandomForestClassifier(n_estimators=150, random_state=RANDOM_STATE, n_jobs=-1).fit(X_train, y_train)
 perm = permutation_importance(rf, X_val, y_val, n_repeats=8, random_state=RANDOM_STATE, n_jobs=-1)
 top = np.argsort(perm.importances_mean)[-5:]
@@ -528,7 +562,7 @@ for i in top:
             "min": 8,
             "body": """В markdown: почему у леса большой train acc не всегда означает переобучение? (п. 9)
 
-**Критерий:** 2–3 предложения.""",
+@@CRITERION@@ 2–3 предложения.""",
             "solution": "",
         },
         {
@@ -537,7 +571,7 @@ for i in top:
             "min": 5,
             "body": """Сравните bagging и RF в одном предложении каждый.
 
-**Критерий:** markdown.""",
+@@CRITERION@@ markdown.""",
             "solution": "",
         },
     ],
@@ -573,7 +607,7 @@ print('Объектов:', len(X))""",
             "min": 8,
             "body": """`train_test_split`, `GradientBoostingRegressor`, `RandomForestRegressor`, `mean_absolute_error`, `RANDOM_STATE=42`, 70/30.
 
-**Критерий:** train/val.""",
+@@CRITERION@@ train/val.""",
             "solution": """from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
@@ -589,7 +623,7 @@ X_train, X_val, y_train, y_val = train_test_split(
             "min": 15,
             "body": """По п. 5. `max_depth` in `[1,2,4,7]`, `n_estimators=180`, `learning_rate=0.05`. Train и validation MAE.
 
-**Критерий:** таблица 4 строк.""",
+@@CRITERION@@ таблица 4 строк.""",
             "solution": """for depth in [1, 2, 4, 7]:
     m = GradientBoostingRegressor(
         n_estimators=180, learning_rate=0.05, max_depth=depth, random_state=RANDOM_STATE
@@ -604,7 +638,7 @@ X_train, X_val, y_train, y_val = train_test_split(
             "min": 18,
             "body": """По п. 7–8. Модель `n_estimators=350`, `max_depth=3`. Кривая train/validation MAE по `staged_predict`. Отметьте лучшее число деревьев.
 
-**Критерий:** график + `best_n`.""",
+@@CRITERION@@ график + `best_n`.""",
             "solution": """import matplotlib.pyplot as plt
 
 model = GradientBoostingRegressor(
@@ -631,7 +665,7 @@ print('best_n:', best_n)""",
             "min": 12,
             "body": """Сравните `learning_rate` 0.2 vs 0.05 при `n_estimators=150`, `max_depth=3`. Validation MAE.
 
-**Критерий:** два числа.""",
+@@CRITERION@@ два числа.""",
             "solution": """for lr in [0.2, 0.05]:
     m = GradientBoostingRegressor(
         n_estimators=150, learning_rate=lr, max_depth=3, random_state=RANDOM_STATE
@@ -644,7 +678,7 @@ print('best_n:', best_n)""",
             "min": 12,
             "body": """По п. 8. `validation_fraction=0.2`, `n_iter_no_change=15`. Сколько деревьев реально обучилось?
 
-**Критерий:** `early.n_estimators_` < 350.""",
+@@CRITERION@@ `early.n_estimators_` < 350.""",
             "solution": """early = GradientBoostingRegressor(
     n_estimators=350, learning_rate=0.05, max_depth=3,
     validation_fraction=0.2, n_iter_no_change=15, tol=1e-4, random_state=RANDOM_STATE,
@@ -657,7 +691,7 @@ print('Обучено деревьев:', early.n_estimators_)""",
             "min": 12,
             "body": """По п. 17. `RandomForestRegressor(n_estimators=150)` — validation MAE vs лучший бустинг.
 
-**Критерий:** два MAE.""",
+@@CRITERION@@ два MAE.""",
             "solution": """rf = RandomForestRegressor(n_estimators=150, random_state=RANDOM_STATE, n_jobs=-1).fit(X_train, y_train)
 gb = GradientBoostingRegressor(
     n_estimators=best_n, learning_rate=0.05, max_depth=3, random_state=RANDOM_STATE
@@ -671,7 +705,7 @@ print('GB val MAE:', round(mean_absolute_error(y_val, gb.predict(X_val)), 1))"""
             "min": 12,
             "body": """По п. 3. На 4 точках из теории (`x=[1,2,5,8]`, `y=[10,14,18,30]`) посчитайте остатки после константного прогноза (среднее).
 
-**Критерий:** массив residual.""",
+@@CRITERION@@ массив residual.""",
             "solution": """x_demo = np.array([1., 2., 5., 8.])
 y_demo = np.array([10., 14., 18., 30.])
 pred0 = np.full_like(y_demo, y_demo.mean())
@@ -684,7 +718,7 @@ print('остатки:', residual)""",
             "min": 8,
             "body": """Markdown: одно предложение — чем boosting отличается от bagging (п. 2).
 
-**Критерий:** последовательное исправление ошибок vs параллельные модели.""",
+@@CRITERION@@ последовательное исправление ошибок vs параллельные модели.""",
             "solution": "",
         },
         {
@@ -693,7 +727,7 @@ print('остатки:', residual)""",
             "min": 5,
             "body": """Чек-лист из п. 16 — отметьте 4 пункта, которые выполнили сегодня.
 
-**Критерий:** markdown список.""",
+@@CRITERION@@ markdown список.""",
             "solution": "",
         },
     ],
@@ -714,36 +748,20 @@ def patch_exercises(path: Path, n_theory: int, n_practice: int, topic: str):
 
 
 SPECS = [
-    (OV_DIR, "overfitting_validation", ov_spec, 33, 34, "валидация"),
-    (DT_DIR, "decision_tree", dt_spec, 35, 36, "дерево"),
-    (RF_DIR, "bagging_random_forest", rf_spec, 37, 38, "лес"),
-    (GB_DIR, "gradient_boosting", gb_spec, 39, 40, "бустинг"),
+    (OV_DIR, "overfitting_validation", ov_spec, 29, 30, "валидация"),
+    (DT_DIR, "decision_tree", dt_spec, 31, 32, "дерево"),
+    (RF_DIR, "bagging_random_forest", rf_spec, 33, 34, "лес"),
+    (GB_DIR, "gradient_boosting", gb_spec, 35, 36, "бустинг"),
 ]
 
 for folder, prefix, spec, n_th, n_pr, topic in SPECS:
     practice_path = folder / f"{prefix}_practice.ipynb"
-    solution_path = folder / f"{prefix}_practice_solution.ipynb"
     exercises_path = folder / f"{prefix}_exercises.ipynb"
 
-    practice_cells = build_practice_cells(spec, filled=False)
-    solution_cells = build_practice_cells(
-        {**spec, "header": {**spec["header"]}},
-        filled=True,
-    )
-    # Solution header note
-    sol_header = solution_cells[0]
-    sol_text = "".join(sol_header["source"])
-    sol_text = sol_text.replace(
-        "Вы **пишете весь код сами**.",
-        "**Только для преподавателя. Не выдавать студентам.**\n\nЭталон практики.",
-    )
-    sol_lines = sol_text.split("\n")
-    solution_cells[0]["source"] = [ln + "\n" for ln in sol_lines[:-1]] + [sol_lines[-1]]
-
+    practice_cells = build_practice_cells(spec, filled=True)
     save_nb(practice_path, practice_cells, f"Занятие {n_pr}. Практика")
-    save_nb(solution_path, solution_cells, f"Занятие {n_pr}. Решение (преподаватель)")
 
     patch_exercises(exercises_path, n_th, n_pr, topic)
-    print("Wrote", practice_path.name, solution_path.name)
+    print("Wrote", practice_path.name)
 
 print("Done")

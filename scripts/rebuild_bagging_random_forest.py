@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Rebuild lesson 17_bagging_random_forest: theory, exercises, practice, solution."""
+"""Rebuild lesson 17_bagging_random_forest: theory, exercises, practice."""
 
 from __future__ import annotations
 
@@ -8,10 +8,43 @@ from pathlib import Path
 
 FOLDER = Path(__file__).resolve().parents[1] / "17_bagging_random_forest"
 RANDOM_STATE = 42
+CRITERION_MARKER = "@@CRITERION@@"
+
+
+def expand_short_criteria(text: str) -> str:
+    out: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(CRITERION_MARKER):
+            criterion = stripped.removeprefix(CRITERION_MARKER).strip().rstrip(".")
+            if out and out[-1] != "":
+                out.append("")
+            out.extend(
+                [
+                    "### Подробные критерии (для проверки LLM)",
+                    "",
+                    "- Выполнены все действия, перечисленные в условии задания.",
+                    f"- Проверочный ориентир: {criterion}.",
+                    "- Если задание требует код, код запускается без ошибок и создаёт названные в условии переменные, таблицы или графики.",
+                    "- Если задание требует текстовый вывод, вывод опирается на полученные числа, таблицы или графики, а не на общие рассуждения.",
+                    "",
+                    "### Снижение баллов",
+                    "",
+                    "- Отсутствует ключевой объект из условия (переменная, таблица, график или текстовый вывод) → существенное снижение.",
+                    "- Использована не та выборка для обучения, подбора или оценки качества → существенное снижение.",
+                    "- Код не запускается из-за ошибки или результат не связан с условием задания → существенное снижение.",
+                    "- Текстовый вывод не объясняет полученный результат или противоречит числам/графикам → снижение.",
+                ]
+            )
+        else:
+            out.append(line.rstrip())
+    while out and out[-1] == "":
+        out.pop()
+    return "\n".join(out)
 
 
 def md(text: str) -> dict:
-    return {"cell_type": "markdown", "metadata": {}, "source": [text]}
+    return {"cell_type": "markdown", "metadata": {}, "source": [expand_short_criteria(text)]}
 
 
 def code(src: str) -> dict:
@@ -616,22 +649,12 @@ def exercises_cells() -> list[dict]:
 
 
 def practice_cells(solution: bool = False) -> list[dict]:
-    if solution:
-        header = (
-            "# Занятие 34. Решение практики (только преподаватель)\n\n"
-            "**Не выдавать студентам.**\n\n"
-            "Код заполнен для проверки преподавателем. Главная модель — **RandomForestClassifier** "
-            "(теория — занятие 33).\n\n"
-            "Решение сравнивает одно дерево, bagging и random forest; настраивает `n_estimators`, "
-            "проверяет OOB и permutation importance.\n"
-        )
-    else:
-        header = (
-            "# Занятие 34. Практика: bagging и случайный лес (~90 мин)\n\n"
-            "Вы **пишете весь код сами**. Ячейку **«Дано»** не меняйте.\n\n"
-            "Главная модель — **RandomForestClassifier** (теория — занятие 33).\n\n"
-            "Сравним одно дерево, bagging и random forest; настроим `n_estimators`, посмотрим OOB.\n"
-        )
+    header = (
+        "# Занятие 34. Практика: bagging и случайный лес (~90 мин)\n\n"
+        "Авторский вариант практики: в блокноте есть условия, ответы и подробные критерии для LLM-проверки.\n\n"
+        "Главная модель — **RandomForestClassifier** (теория — занятие 33).\n\n"
+        "Сравним одно дерево, bagging и random forest; настроим `n_estimators`, посмотрим OOB.\n"
+    )
 
     cells: list[dict] = [md(header)]
     cells.append(md("---\n## Дано: make_classification\n\n20 признаков — как в теории."))
@@ -652,7 +675,7 @@ print('Объектов:', len(X))"""
             "---\n## Задание 0. Split (~8 мин)\n\n"
             "Импорты: `train_test_split`, `DecisionTreeClassifier`, `BaggingClassifier`, "
             "`RandomForestClassifier`, `accuracy_score`, `permutation_importance`. "
-            "Split 70/30, stratify, `RANDOM_STATE=42`.\n\n**Критерий:** train/val готовы.",
+            "Split 70/30, stratify, `RANDOM_STATE=42`.\n\n@@CRITERION@@ train/val готовы.",
             """RANDOM_STATE = 42
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
@@ -669,7 +692,7 @@ print(len(X_train), len(X_val))""",
         (
             "---\n## Задание 1. Три модели (~15 мин)\n\n"
             "Одно дерево, bagging (150 estimators), random forest (150). Train и validation accuracy.\n\n"
-            "**Критерий:** bagging и/или RF заметно выше одного дерева на validation.",
+            "@@CRITERION@@ bagging и/или RF заметно выше одного дерева на validation.",
             """models = {
     'tree': DecisionTreeClassifier(random_state=RANDOM_STATE),
     'bagging': BaggingClassifier(
@@ -686,7 +709,7 @@ for name, m in models.items():
         (
             "---\n## Задание 2. n_estimators (~15 мин)\n\n"
             "График validation accuracy vs `n_estimators` in `[1,5,20,60,150,300]`.\n\n"
-            "**Критерий:** кривая выходит на плато.",
+            "@@CRITERION@@ кривая выходит на плато.",
             """ns = [1, 5, 20, 60, 150, 300]
 val_scores = []
 for n in ns:
@@ -702,7 +725,7 @@ plt.show()""",
         (
             "---\n## Задание 3. OOB score (~10 мин)\n\n"
             "`RandomForestClassifier(oob_score=True, n_estimators=300)`. Сравните OOB и validation.\n\n"
-            "**Критерий:** оба числа напечатаны.",
+            "@@CRITERION@@ оба числа напечатаны.",
             """rf = RandomForestClassifier(
     n_estimators=300, oob_score=True, random_state=RANDOM_STATE, n_jobs=-1,
 )
@@ -713,7 +736,7 @@ print('val:', accuracy_score(y_val, rf.predict(X_val)))""",
         (
             "---\n## Задание 4. max_depth (~12 мин)\n\n"
             "`max_depth` in `[None, 5, 10, 20]` при `n_estimators=150`. Лучший по validation.\n\n"
-            "**Критерий:** `best_depth` выбран.",
+            "@@CRITERION@@ `best_depth` выбран.",
             """best_depth, best_acc = None, -1
 for d in [None, 5, 10, 20]:
     m = RandomForestClassifier(
@@ -729,7 +752,7 @@ print('best_depth:', best_depth)""",
         (
             "---\n## Задание 5. Bootstrap вручную (~12 мин)\n\n"
             "100 повторов bootstrap длины `len(X_train)`. Средняя доля уникальных.\n\n"
-            "**Критерий:** ~0.63 при большом n.",
+            "@@CRITERION@@ ~0.63 при большом n.",
             """rng = np.random.default_rng(RANDOM_STATE)
 n = len(X_train)
 fracs = [len(np.unique(rng.choice(n, n, replace=True))) / n for _ in range(100)]
@@ -738,7 +761,7 @@ print('средняя доля уникальных:', round(np.mean(fracs), 3))
         (
             "---\n## Задание 6. Permutation importance (~15 мин)\n\n"
             "Top-5 признаков на validation.\n\n"
-            "**Критерий:** barh или таблица top-5.",
+            "@@CRITERION@@ barh или таблица top-5.",
             """rf = RandomForestClassifier(n_estimators=150, random_state=RANDOM_STATE, n_jobs=-1)
 rf.fit(X_train, y_train)
 r = permutation_importance(rf, X_val, y_val, n_repeats=10, random_state=RANDOM_STATE)
@@ -750,7 +773,7 @@ for i in top[::-1]:
         (
             "---\n## Задание 7. Train vs val gap (~8 мин)\n\n"
             "В markdown: почему высокий train acc у леса не всегда переобучение?\n\n"
-            "**Критерий:** 2–3 предложения.",
+            "@@CRITERION@@ 2–3 предложения.",
             """# Лес усредняет много деревьев: на train каждое дерево может подгоняться,
 # но ансамбль стабильнее одного дерева. Большой разрыв train–val бывает,
 # но добавление деревьев реже ухудшает validation — в отличие от одной глубокой модели.""",
@@ -758,7 +781,7 @@ for i in top[::-1]:
         (
             "---\n## Задание 8. Итог (~5 мин)\n\n"
             "Сравните bagging и RF в одном предложении каждый.\n\n"
-            "**Критерий:** markdown.",
+            "@@CRITERION@@ markdown.",
             """# Bagging: много деревьев на разных bootstrap-выборках, усреднение снижает разброс.
 # RF: то же + случайный поднабор признаков в узлах → деревья разнообразнее.""",
         ),
@@ -815,13 +838,8 @@ def main() -> None:
     )
     write_nb(
         FOLDER / "bagging_random_forest_practice.ipynb",
-        practice_cells(solution=False),
-        "Занятие 34. Практика",
-    )
-    write_nb(
-        FOLDER / "bagging_random_forest_practice_solution.ipynb",
         practice_cells(solution=True),
-        "Занятие 34. Решение",
+        "Занятие 34. Практика",
     )
 
 

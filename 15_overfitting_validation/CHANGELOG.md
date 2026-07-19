@@ -46,7 +46,7 @@
 
 ### Синхронизация
 - Упражнения: **10 задач** (было 8); добавлены п. 1 (validation error) и п. 6 (test один раз).
-- Практика/solution: ссылки п. 6–10, пп. 1–2 для терминов.
+- Практика: ссылки п. 6–10, пп. 1–2 для терминов; авторские ответы и подробные критерии перенесены в основной `practice`.
 - Cross-lesson: `18_gradient_boosting` п. 11 — без изменений.
 
 ### Скрипты
@@ -55,4 +55,4 @@
 
 ### Проверка
 - 5 code-ячеек теории выполняются headless (matplotlib Agg).
-- `overfitting_validation_practice_solution.ipynb` — выполняется.
+- `overfitting_validation_practice.ipynb` — выполняется.

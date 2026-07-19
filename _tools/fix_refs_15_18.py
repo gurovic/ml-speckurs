@@ -1,4 +1,4 @@
-"""Fix cross-ref п. numbers and student-reader tweaks for topics 17-20."""
+"""Fix cross-ref п. numbers and student-reader tweaks for topics 15-18."""
 import json
 from pathlib import Path
 
@@ -14,34 +14,14 @@ REPLACEMENTS = {
         ("По мотивам п. 9. `cross_validate`", "По мотивам п. 10. `cross_validate`"),
         ("гиперпараметр**? (п. 6)", "гиперпараметр**? (п. 4)"),
     ],
-    "15_overfitting_validation/overfitting_validation_practice_solution.ipynb": [
-        ("п. 7–9 теории", "п. 8–10 теории"),
-        ("(как в теории, п. 4)", "(как в теории, п. 6)"),
-        ("По мотивам п. 7.", "По мотивам п. 8."),
-        ("где переобучение? (п. 2)", "где переобучение? (п. 1)"),
-        ("По мотивам п. 8. Для `best_degree`", "По мотивам п. 9. Для `best_degree`"),
-        ("По мотивам п. 9. `cross_validate`", "По мотивам п. 10. `cross_validate`"),
-        ("гиперпараметр**? (п. 6)", "гиперпараметр**? (п. 4)"),
-    ],
     "16_decision_tree/decision_tree_practice.ipynb": [
-        ("По п. 16. `plot_tree`", "По п. 1. `plot_tree`"),
-        ("По п. 15. Выведите `feature_importances_`", "По п. 14. Выведите `feature_importances_`"),
-    ],
-    "16_decision_tree/decision_tree_practice_solution.ipynb": [
         ("По п. 16. `plot_tree`", "По п. 1. `plot_tree`"),
         ("По п. 15. Выведите `feature_importances_`", "По п. 14. Выведите `feature_importances_`"),
     ],
     "17_bagging_random_forest/bagging_random_forest_practice.ipynb": [
         ("По п. 3. Сгенерируйте bootstrap", "По п. 2. Сгенерируйте bootstrap"),
     ],
-    "17_bagging_random_forest/bagging_random_forest_practice_solution.ipynb": [
-        ("По п. 3. Сгенерируйте bootstrap", "По п. 2. Сгенерируйте bootstrap"),
-    ],
     "18_gradient_boosting/gradient_boosting_practice.ipynb": [
-        ("По п. 17. `RandomForestRegressor", "По п. 12. `RandomForestRegressor"),
-        ("от bagging (п. 2).", "от bagging (п. 11)."),
-    ],
-    "18_gradient_boosting/gradient_boosting_practice_solution.ipynb": [
         ("По п. 17. `RandomForestRegressor", "По п. 12. `RandomForestRegressor"),
         ("от bagging (п. 2).", "от bagging (п. 11)."),
     ],
