@@ -56,7 +56,7 @@ COMPETITIONS = {
         "author_notebook": "author_solution.ipynb",
         "baseline_submission": "submission.csv",
         "author_submission": "author_submission.csv",
-        "main_metric": "ROC_AUC",
+        "main_metric": "ROC-AUC",
         "metric_direction": "больше — лучше",
     },
 }
@@ -265,7 +265,7 @@ def readme_scores_section(key: str, scores: dict[str, dict[str, float]]) -> str:
 
 Главная метрика: **{main}** ({direction}).
 
-| Решение | Private score | Дополнительные метрики |
+| Решение | Значение на private | Дополнительные метрики |
 |---|---:|---|
 {table}
 """.strip()

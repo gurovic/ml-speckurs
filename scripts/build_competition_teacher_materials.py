@@ -177,71 +177,152 @@ LOGISTIC_NOTES = """
 
 
 ENSEMBLE_NOTES = """
-# Разбор решения: итоговое соревнование по модулю, классификация ансамблями
+# Учительский разбор итогового проекта: прогноз ухода пользователя
 
-Этот файл — для преподавателя. Он помогает разобрать не только победившее решение, но и разные разумные стратегии.
+Проект рассчитан на четыре занятия по 90 минут. Его цель — собрать знания всего раздела в один воспроизводимый ML-процесс, а не только найти модель с высоким местом в таблице лидеров.
 
-## Что важно проверить у учеников
+Официальную проверку сабмитов и таблицу лидеров ведёт StackMoreLayers. `private_target.csv` и `score_submissions.ipynb` нужны только авторам курса для проверки комплекта и не выдаются участникам.
 
-- Поняли ли они цель: предсказать вероятность ухода пользователя `churn_probability`.
-- Используют ли ROC-AUC как главную метрику.
-- Не превращают ли задачу только в 0/1-классификацию: для ROC-AUC нужны вероятности.
-- Сравнивают ли несколько ансамблей по одной и той же validation-выборке.
-- Пробуют ли внешние бустинги: XGBoost, LightGBM, CatBoost.
-- Не используют ли `private_target.csv` во время подбора.
+## Занятие 1. Постановка ML-задачи
 
-## Минимальный путь к рабочему решению
+### Результат занятия
 
-1. Прочитать данные.
-2. Разделить train на train/validation со стратификацией.
-3. Обработать числовые пропуски медианой.
-4. Обработать категориальные пропуски и применить one-hot.
-5. Сравнить несколько моделей: RandomForest, ExtraTrees, GradientBoosting, HistGradientBoosting, XGBoost, LightGBM, CatBoost.
-6. Выбрать лучшую по ROC-AUC.
-7. Обучить финальную модель на всём train.
-8. Сохранить вероятности класса 1 в `submission.csv`.
+- бизнес-вопрос переведён в бинарную классификацию;
+- ученик может назвать объект, признаки, цель и смысл прогноза;
+- данные изучены, train/validation разделены со стратификацией;
+- построен простой baseline;
+- первый CSV загружен в StackMoreLayers.
 
-## Идеи признаков
+### Ориентир на 90 минут
 
-- `sessions_per_100_days`: активность с учётом возраста аккаунта.
-- `price_after_discount`: реальная цена после скидки.
-- `is_inactive`: давно не было активности.
-- `support_per_session`: много обращений в поддержку при малой активности — сигнал риска.
-- `failed_payment_flag`: были ли ошибки оплаты.
-- `high_price_no_discount`: дорогой тариф без скидки.
-- `low_homework_many_tickets`: мало выполненных заданий и много обращений.
+1. 0–15 минут — бизнес-ситуация и ML-постановка.
+2. 15–35 минут — знакомство с таблицами и словарём данных.
+3. 35–50 минут — выбор ROC-AUC и честного разбиения.
+4. 50–75 минут — baseline и локальная проверка.
+5. 75–90 минут — первый сабмит и фиксация результата.
 
-## Идеи моделей
+Важно добиться не формулы ROC-AUC, а ясного понимания: модель должна ставить более высокий риск тем, кто действительно уходит, поэтому в файл отправляются вероятности.
 
-- `RandomForestClassifier`: устойчивый понятный baseline среди ансамблей.
-- `ExtraTreesClassifier`: похож на случайный лес, но деревья более случайные.
-- `GradientBoostingClassifier`: последовательное исправление ошибок.
-- `HistGradientBoostingClassifier`: быстрый sklearn-бустинг.
-- `XGBClassifier`: сильный внешний бустинг, много параметров.
-- `LGBMClassifier`: часто быстрый и сильный на таблицах.
-- `CatBoostClassifier`: хорошо работает с табличными задачами; в этом материале можно использовать через one-hot или отдельно обсудить нативные категории.
+## Занятие 2. Подготовка данных и pipeline
 
-## Идеи настройки
+### Результат занятия
 
-- Для лесов: `n_estimators`, `max_depth`, `min_samples_leaf`, `max_features`.
-- Для бустинга: `n_estimators`/`iterations`, `learning_rate`, `max_depth`/`depth`, `num_leaves`, `subsample`.
-- Для всех моделей: сравнивать не один запуск на глаз, а таблицу метрик.
-- Для финала: можно усреднить вероятности 2–3 сильных моделей.
+- числовые и категориальные столбцы обрабатываются одним pipeline;
+- пропуски, масштабирование и кодирование одинаково применяются к train, validation и test;
+- One-Hot Encoding сравнивается с Target Encoding;
+- Target Encoding обучается только внутри train-части или fold;
+- проверены осмысленные новые признаки и сделан второй сабмит.
 
-## Частые ошибки
+### Ориентир на 90 минут
 
-- Сдать 0/1 вместо вероятности для ROC-AUC.
-- Выбрать модель по F1, хотя рейтинг считается по ROC-AUC.
-- Сравнивать модели после разных разбиений.
-- Слишком сильно подбирать параметры на одной validation-выборке.
-- Забыть одинаково обработать train и test.
+1. 0–15 минут — разбор ошибок baseline.
+2. 15–40 минут — `ColumnTransformer`, пропуски, масштабирование, One-Hot Encoding.
+3. 40–55 минут — Target Encoding и утечка цели.
+4. 55–75 минут — создание и отбор признаков.
+5. 75–90 минут — повторная локальная проверка и сабмит.
 
-## Что можно обсудить после модуля
+Ключевой вопрос ученику: «Какая часть кода обучается на данных и на каких именно строках?» Если ответ неясен, риск утечки ещё не устранён.
 
-- Почему ансамбли часто выигрывают у одной линейной модели на нелинейных табличных зависимостях.
-- Чем bagging отличается от boosting на практике.
-- Почему усреднение вероятностей иногда улучшает ROC-AUC.
-- Почему “лучшая модель на validation” не гарантирует победу на скрытом test.
+## Занятие 3. Обучение и подбор моделей
+
+### Результат занятия
+
+- на одной схеме кросс-валидации сравнены логистическая регрессия, дерево, случайный лес и градиентный бустинг;
+- обязательно проверен CatBoost; XGBoost и LightGBM доступны для расширения;
+- для одной модели выполнен небольшой осмысленный `GridSearchCV`;
+- разобраны ошибки и permutation importance;
+- новый сабмит связан с записанным экспериментом.
+
+### Ориентир на 90 минут
+
+1. 0–15 минут — план экспериментов и единая схема сравнения.
+2. 15–45 минут — сравнение семейств моделей через кросс-валидацию.
+3. 45–65 минут — подбор нескольких гиперпараметров.
+4. 65–80 минут — анализ ошибок и важности признаков.
+5. 80–90 минут — сабмит и выводы.
+
+Не требуйте перебора всех моделей и десятков параметров. Для проекта важнее честная таблица экспериментов и объяснение решения.
+
+## Занятие 4. Финальная модель и защита
+
+### Результат занятия
+
+- модель выбрана по локальной проверке до просмотра финального результата;
+- pipeline обучен на всём `train.csv`;
+- формат финального CSV проверен и файл загружен в StackMoreLayers;
+- заполнен отчёт;
+- команда защитила решение за 5–7 минут.
+
+### Ориентир на 90 минут
+
+1. 0–20 минут — выбор и фиксация финального решения.
+2. 20–35 минут — обучение на всём train и финальный сабмит.
+3. 35–60 минут — оформление отчёта и презентации.
+4. 60–90 минут — защиты и вопросы.
+
+## Поле идей для решения
+
+### Предобработка
+
+- медиана для числовых пропусков;
+- наиболее частая категория или отдельная метка для категориальных пропусков;
+- `StandardScaler` для линейной модели;
+- `OneHotEncoder(handle_unknown="ignore")`;
+- `TargetEncoder` внутри pipeline, чтобы кодирование не видело validation-ответы;
+- нативная работа CatBoost с категориями как дополнительный сильный вариант.
+
+### Признаки
+
+- `sessions_change`: изменение числа сессий по сравнению с предыдущими 30 днями;
+- `sessions_retention`: отношение текущей активности к предыдущей;
+- `activity_drop`: резкое падение активности между двумя периодами;
+- `sessions_per_100_days`: недавняя активность с учётом возраста аккаунта;
+- `price_after_discount`: фактическая цена после скидки;
+- `is_inactive`: признак долгого отсутствия;
+- `support_per_session`: обращения в поддержку относительно числа сессий;
+- `failed_payment_flag`: наличие ошибок оплаты;
+- `high_price_no_discount`: высокая цена при малой скидке;
+- `low_homework_many_tickets`: мало выполненных заданий при большом числе обращений.
+
+Каждый признак сначала формулируется как гипотеза, затем проверяется на неизменной локальной схеме. Название признака само по себе не доказывает его полезность.
+
+### Модели
+
+- логистическая регрессия — простой интерпретируемый ориентир;
+- решающее дерево — проверка одной нелинейной модели;
+- Random Forest и Extra Trees — bagging-подход;
+- Gradient Boosting и HistGradientBoosting — бустинг Scikit-Learn;
+- CatBoost, XGBoost и LightGBM — внешние реализации бустинга;
+- усреднение вероятностей разных сильных моделей — дополнительный эксперимент.
+
+### Настройка
+
+- для лесов: `n_estimators`, `max_depth`, `min_samples_leaf`, `max_features`;
+- для бустинга: `iterations` или `n_estimators`, `learning_rate`, глубина, число листьев;
+- для `GridSearchCV` достаточно небольшой сетки, параметры которой команда понимает;
+- все сравнения проводятся одной метрикой и на одной схеме кросс-валидации.
+
+## Частые существенные ошибки
+
+- ответы validation или `private_target.csv` участвуют в обучении;
+- Target Encoding посчитан по всей таблице до разбиения;
+- преобразования отдельно обучены на test;
+- в StackMoreLayers отправлены метки 0/1 вместо вероятностей;
+- модели сравниваются на разных разбиениях;
+- решение выбирается только по месту в таблице лидеров;
+- результат нельзя воспроизвести запуском ноутбука сверху вниз;
+- команда не может объяснить, что именно улучшило модель.
+
+## Критерии защиты, 10 баллов
+
+- 2 балла — ясная бизнес- и ML-постановка, корректная метрика;
+- 2 балла — честная проверка и отсутствие утечки;
+- 2 балла — осмысленная предобработка и признаки;
+- 2 балла — сравнение моделей и обоснование финального выбора;
+- 1 балл — анализ ошибок или важности признаков;
+- 1 балл — воспроизводимый ноутбук, корректный финальный сабмит и ясная защита.
+
+Место в таблице лидеров само по себе не является отдельным критерием: оно помогает поддержать проектную мотивацию, но не заменяет качество ML-процесса.
 """
 
 
@@ -857,9 +938,11 @@ submission.head()
 ENSEMBLE_BASELINE = [
     md(
         """
-# Простой baseline: классификация ансамблем
+# Простой baseline итогового проекта
 
-Этот блокнот можно выдать как стартовый код для итогового соревнования. Он обучает один `RandomForestClassifier` и сохраняет вероятности.
+Этот блокнот можно выдать на первом занятии по решению преподавателя. Он строит простой воспроизводимый pipeline с логистической регрессией, считает локальный ROC-AUC и создаёт первый файл для StackMoreLayers.
+
+Baseline — начальная точка, а не готовое проектное решение. После запуска разберите каждую часть и запишите, что именно будете улучшать.
 """
     ),
     code(
@@ -870,12 +953,12 @@ import numpy as np
 import pandas as pd
 
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 RANDOM_STATE = 42
 DATA_DIR = Path("data")
@@ -914,7 +997,12 @@ preprocess = ColumnTransformer(
     transformers=[
         (
             "num",
-            Pipeline(steps=[("imputer", SimpleImputer(strategy="median"))]),
+            Pipeline(
+                steps=[
+                    ("imputer", SimpleImputer(strategy="median")),
+                    ("scaler", StandardScaler()),
+                ]
+            ),
             numeric_features,
         ),
         (
@@ -933,15 +1021,7 @@ preprocess = ColumnTransformer(
 model = Pipeline(
     steps=[
         ("preprocess", preprocess),
-        (
-            "model",
-            RandomForestClassifier(
-                n_estimators=200,
-                min_samples_leaf=3,
-                random_state=RANDOM_STATE,
-                n_jobs=-1,
-            ),
-        ),
+        ("model", LogisticRegression(max_iter=2000, random_state=RANDOM_STATE)),
     ]
 )
 
@@ -966,15 +1046,29 @@ submission.to_csv("submission.csv", index=False)
 submission.head()
 """
     ),
+    md(
+        """
+Загрузите `submission.csv` в StackMoreLayers и запишите в журнал экспериментов локальный ROC-AUC и результат платформы.
+"""
+    ),
 ]
 
 
 ENSEMBLE_AUTHOR = [
     md(
         """
-# Авторское решение: итоговое соревнование по модулю
+# Авторское решение итогового проекта
 
-Блокнот сравнивает несколько ансамблей, включая XGBoost, LightGBM и CatBoost, а затем строит финальный файл с вероятностями.
+Решение показывает полный путь четырёхзанятийного проекта: постановку, предобработку без утечки, сравнение моделей, подбор параметров, анализ ошибок, финальный сабмит и материал для защиты.
+
+Это не единственно правильный путь. Его задача — дать преподавателю воспроизводимый ориентир и набор идей для разбора после завершения соревнования.
+"""
+    ),
+    md(
+        """
+## 1. Задача и данные
+
+Нужно оценить вероятность ухода пользователя образовательного сервиса в ближайший месяц. Это бинарная классификация; цель — `churn`, а официальная метрика StackMoreLayers — ROC-AUC.
 """
     ),
     code(
@@ -986,6 +1080,7 @@ import pandas as pd
 
 from sklearn.base import clone
 from sklearn.compose import ColumnTransformer
+from sklearn.inspection import permutation_importance
 from sklearn.ensemble import (
     ExtraTreesClassifier,
     GradientBoostingClassifier,
@@ -993,10 +1088,12 @@ from sklearn.ensemble import (
     RandomForestClassifier,
 )
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_score, train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler, TargetEncoder
+from sklearn.tree import DecisionTreeClassifier
 
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
@@ -1013,12 +1110,28 @@ test = pd.read_csv(DATA_DIR / "test.csv")
 
 target = "churn"
 id_col = "id"
+
+print("train:", train.shape, "test:", test.shape)
+print("Доля класса 1:", round(train[target].mean(), 3))
+display(train.head())
+"""
+    ),
+    md(
+        """
+## 2. Признаки и честное разбиение
+
+Все новые признаки строятся одинаковой функцией для train и test и не используют цель. Validation отделяется до обучения кодировщиков и моделей.
 """
     ),
     code(
         """
 def add_features(df):
     df = df.copy()
+    df["sessions_change"] = df["sessions_last_30"] - df["sessions_previous_30"]
+    df["sessions_retention"] = (df["sessions_last_30"] + 1) / (df["sessions_previous_30"] + 1)
+    df["activity_drop"] = (
+        df["sessions_last_30"] <= np.maximum(2, 0.5 * df["sessions_previous_30"])
+    ).astype(int)
     df["sessions_per_100_days"] = df["sessions_last_30"] / (df["account_age_days"] / 100 + 1)
     df["price_after_discount"] = df["plan_price"] * (1 - df["discount_percent"] / 100)
     df["is_inactive"] = (df["days_since_last_activity"] >= 14).astype(int)
@@ -1041,6 +1154,13 @@ X_train, X_val, y_train, y_val = train_test_split(
 )
 """
     ),
+    md(
+        """
+## 3. Два варианта предобработки
+
+One-Hot Encoding — понятный универсальный вариант. Target Encoding может быть компактнее, но он использует цель и поэтому должен находиться внутри pipeline. `TargetEncoder` из Scikit-Learn применяет внутреннюю кросс-валидацию при `fit_transform`.
+"""
+    ),
     code(
         """
 def make_ohe():
@@ -1050,14 +1170,31 @@ def make_ohe():
         return OneHotEncoder(handle_unknown="ignore", sparse=False)
 
 
-def make_preprocess(X_part):
+def make_preprocess(X_part, encoding="onehot"):
     numeric_features = X_part.select_dtypes(include=np.number).columns.tolist()
     categorical_features = X_part.select_dtypes(exclude=np.number).columns.tolist()
+
+    if encoding == "onehot":
+        encoder = make_ohe()
+    elif encoding == "target":
+        encoder = TargetEncoder(
+            target_type="binary",
+            smooth="auto",
+            cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE),
+        )
+    else:
+        raise ValueError(f"Неизвестное кодирование: {encoding}")
+
     return ColumnTransformer(
         transformers=[
             (
                 "num",
-                Pipeline(steps=[("imputer", SimpleImputer(strategy="median"))]),
+                Pipeline(
+                    steps=[
+                        ("imputer", SimpleImputer(strategy="median")),
+                        ("scaler", StandardScaler()),
+                    ]
+                ),
                 numeric_features,
             ),
             (
@@ -1065,7 +1202,7 @@ def make_preprocess(X_part):
                 Pipeline(
                     steps=[
                         ("imputer", SimpleImputer(strategy="most_frequent")),
-                        ("onehot", make_ohe()),
+                        ("encoder", encoder),
                     ]
                 ),
                 categorical_features,
@@ -1074,126 +1211,242 @@ def make_preprocess(X_part):
     )
 
 
-def make_pipeline(estimator, X_part):
+def make_pipeline(estimator, X_part, encoding="onehot"):
     return Pipeline(
         steps=[
-            ("preprocess", make_preprocess(X_part)),
+            ("preprocess", make_preprocess(X_part, encoding=encoding)),
             ("model", estimator),
         ]
     )
+"""
+    ),
+    md(
+        """
+## 4. Сравнение моделей
 
-
-def evaluate(name, estimator):
-    model = make_pipeline(estimator, X_train)
-    model.fit(X_train, y_train)
-    proba = model.predict_proba(X_val)[:, 1]
-    pred = (proba >= 0.5).astype(int)
-    return {
-        "name": name,
-        "ROC_AUC": roc_auc_score(y_val, proba),
-        "average_precision": average_precision_score(y_val, proba),
-        "F1_at_0_5": f1_score(y_val, pred, zero_division=0),
-        "model": model,
-        "val_proba": proba,
-    }
+Все варианты оцениваются на одной стратифицированной кросс-валидации внутри train-части. Отложенная часть используется как дополнительная независимая проверка после кросс-валидации.
 """
     ),
     code(
         """
 estimators = {
-    "RandomForest": RandomForestClassifier(
-        n_estimators=350,
-        min_samples_leaf=3,
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
+    "LogisticRegression": (
+        LogisticRegression(max_iter=2000, random_state=RANDOM_STATE),
+        "onehot",
     ),
-    "ExtraTrees": ExtraTreesClassifier(
-        n_estimators=350,
-        min_samples_leaf=3,
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
+    "DecisionTree": (
+        DecisionTreeClassifier(max_depth=5, min_samples_leaf=8, random_state=RANDOM_STATE),
+        "onehot",
     ),
-    "GradientBoosting": GradientBoostingClassifier(
-        n_estimators=220,
-        learning_rate=0.04,
-        max_depth=3,
-        random_state=RANDOM_STATE,
+    "RandomForest": (
+        RandomForestClassifier(
+            n_estimators=300,
+            min_samples_leaf=3,
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+        ),
+        "onehot",
     ),
-    "HistGradientBoosting": HistGradientBoostingClassifier(
-        max_iter=220,
-        learning_rate=0.04,
-        max_leaf_nodes=31,
-        random_state=RANDOM_STATE,
+    "ExtraTrees": (
+        ExtraTreesClassifier(
+            n_estimators=300,
+            min_samples_leaf=3,
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+        ),
+        "onehot",
     ),
-    "XGBoost": XGBClassifier(
-        n_estimators=260,
-        learning_rate=0.04,
-        max_depth=3,
-        subsample=0.9,
-        colsample_bytree=0.9,
-        eval_metric="logloss",
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
+    "GradientBoosting": (
+        GradientBoostingClassifier(
+            n_estimators=200,
+            learning_rate=0.04,
+            max_depth=3,
+            random_state=RANDOM_STATE,
+        ),
+        "onehot",
     ),
-    "LightGBM": LGBMClassifier(
-        n_estimators=260,
-        learning_rate=0.04,
-        num_leaves=31,
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
-        verbose=-1,
+    "HistGradientBoosting_TargetEncoding": (
+        HistGradientBoostingClassifier(
+            max_iter=200,
+            learning_rate=0.04,
+            max_leaf_nodes=31,
+            random_state=RANDOM_STATE,
+        ),
+        "target",
     ),
-    "CatBoost": CatBoostClassifier(
-        iterations=260,
-        learning_rate=0.04,
-        depth=4,
-        loss_function="Logloss",
-        random_seed=RANDOM_STATE,
-        verbose=False,
+    "XGBoost": (
+        XGBClassifier(
+            n_estimators=220,
+            learning_rate=0.04,
+            max_depth=3,
+            subsample=0.9,
+            colsample_bytree=0.9,
+            eval_metric="logloss",
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+        ),
+        "onehot",
+    ),
+    "LightGBM": (
+        LGBMClassifier(
+            n_estimators=220,
+            learning_rate=0.04,
+            num_leaves=31,
+            random_state=RANDOM_STATE,
+            n_jobs=-1,
+            verbose=-1,
+        ),
+        "onehot",
+    ),
+    "CatBoost": (
+        CatBoostClassifier(
+            iterations=240,
+            learning_rate=0.04,
+            depth=4,
+            loss_function="Logloss",
+            random_seed=RANDOM_STATE,
+            verbose=False,
+        ),
+        "onehot",
     ),
 }
 
+cv = StratifiedKFold(n_splits=4, shuffle=True, random_state=RANDOM_STATE)
 rows = []
 trained = {}
 val_predictions = {}
 
-for name, estimator in estimators.items():
-    result = evaluate(name, estimator)
-    trained[name] = result.pop("model")
-    val_predictions[name] = result.pop("val_proba")
-    rows.append(result)
+for name, (estimator, encoding) in estimators.items():
+    model = make_pipeline(clone(estimator), X_train, encoding=encoding)
+    cv_scores = cross_val_score(model, X_train, y_train, scoring="roc_auc", cv=cv, n_jobs=1)
 
-leaderboard = pd.DataFrame(rows).sort_values("ROC_AUC", ascending=False)
+    model.fit(X_train, y_train)
+    proba = model.predict_proba(X_val)[:, 1]
+    pred = (proba >= 0.5).astype(int)
+
+    trained[name] = model
+    val_predictions[name] = proba
+    rows.append(
+        {
+            "name": name,
+            "CV_ROC_AUC_mean": cv_scores.mean(),
+            "CV_ROC_AUC_std": cv_scores.std(),
+            "holdout_ROC_AUC": roc_auc_score(y_val, proba),
+            "holdout_AP": average_precision_score(y_val, proba),
+            "holdout_F1_at_0_5": f1_score(y_val, pred, zero_division=0),
+        }
+    )
+
+leaderboard = pd.DataFrame(rows).sort_values("CV_ROC_AUC_mean", ascending=False)
 leaderboard
 """
     ),
     md(
         """
-## Финальная смесь моделей
+## 5. Небольшой GridSearchCV
 
-Для финального файла берём не просто первые строки одной validation-таблицы, а смесь разных семейств моделей: случайный лес, extremely randomized trees и CatBoost. Такая смесь показывает идею ансамблирования решений: модели ошибаются по-разному, и усреднение вероятностей иногда даёт более устойчивый результат.
+Подбираем только несколько понятных параметров случайного леса. Отложенная выборка не участвует в поиске.
 """
     ),
     code(
         """
-final_names = ["ExtraTrees", "CatBoost", "RandomForest"]
-avg_val_proba = np.mean([val_predictions[name] for name in final_names], axis=0)
+rf_for_grid = make_pipeline(
+    RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1),
+    X_train,
+    encoding="onehot",
+)
 
-print("Усредняем модели:", final_names)
+param_grid = {
+    "model__n_estimators": [200, 350],
+    "model__max_depth": [None, 8],
+    "model__min_samples_leaf": [2, 5],
+}
+
+grid = GridSearchCV(
+    rf_for_grid,
+    param_grid=param_grid,
+    scoring="roc_auc",
+    cv=cv,
+    n_jobs=1,
+    refit=True,
+)
+grid.fit(X_train, y_train)
+
+grid_proba = grid.predict_proba(X_val)[:, 1]
+trained["RandomForest_grid"] = grid.best_estimator_
+val_predictions["RandomForest_grid"] = grid_proba
+
+print("Лучшие параметры:", grid.best_params_)
+print("Средний ROC-AUC на CV:", round(grid.best_score_, 4))
+print("ROC-AUC на holdout:", round(roc_auc_score(y_val, grid_proba), 4))
+"""
+    ),
+    md(
+        """
+## 6. Анализ ошибок и важности исходных признаков
+
+Permutation importance считается на отложенной части и показывает падение ROC-AUC при перемешивании одного исходного столбца. Это не доказывает причинную связь, но помогает обсуждать поведение модели.
+"""
+    ),
+    code(
+        """
+analysis_model = trained["RandomForest_grid"]
+analysis_proba = val_predictions["RandomForest_grid"]
+
+errors = X_val.copy()
+errors["churn_true"] = y_val
+errors["churn_probability"] = analysis_proba
+errors["absolute_error"] = np.abs(errors["churn_true"] - errors["churn_probability"])
+display(errors.sort_values("absolute_error", ascending=False).head(10))
+
+importance = permutation_importance(
+    analysis_model,
+    X_val,
+    y_val,
+    scoring="roc_auc",
+    n_repeats=8,
+    random_state=RANDOM_STATE,
+    n_jobs=1,
+)
+
+importance_table = (
+    pd.DataFrame(
+        {
+            "feature": X_val.columns,
+            "importance_mean": importance.importances_mean,
+            "importance_std": importance.importances_std,
+        }
+    )
+    .sort_values("importance_mean", ascending=False)
+)
+importance_table.head(12)
+"""
+    ),
+    md(
+        """
+## 7. Проверка смеси и выбор финальной модели
+
+Проверяем усреднение вероятностей Extra Trees, CatBoost и настроенного случайного леса. На этих данных смесь не выигрывает у лидера кросс-валидации, поэтому не используем её только потому, что она сложнее.
+"""
+    ),
+    code(
+        """
+blend_names = ["ExtraTrees", "CatBoost", "RandomForest_grid"]
+avg_val_proba = np.mean([val_predictions[name] for name in blend_names], axis=0)
+
+print("Проверяем смесь:", blend_names)
 print("ROC-AUC среднего:", round(roc_auc_score(y_val, avg_val_proba), 4))
 print("Average precision среднего:", round(average_precision_score(y_val, avg_val_proba), 4))
+
+final_name = leaderboard.iloc[0]["name"]
+print("Финальная модель по среднему ROC-AUC на CV:", final_name)
 """
     ),
     code(
         """
-final_probas = []
-for name in final_names:
-    estimator = clone(estimators[name])
-    model = make_pipeline(estimator, X)
-    model.fit(X, y)
-    final_probas.append(model.predict_proba(test_fe[features])[:, 1])
-
-test_proba = np.mean(final_probas, axis=0)
+final_model = clone(trained[final_name])
+final_model.fit(X, y)
+test_proba = final_model.predict_proba(test_fe[features])[:, 1]
 
 submission = pd.DataFrame(
     {
@@ -1204,6 +1457,37 @@ submission = pd.DataFrame(
 
 submission.to_csv("author_submission.csv", index=False)
 submission.head()
+"""
+    ),
+    md(
+        """
+Перед загрузкой в StackMoreLayers авторское решение проверяет число строк, уникальность `id`, отсутствие пропусков и диапазон вероятностей.
+"""
+    ),
+    code(
+        """
+assert submission.columns.tolist() == ["id", "churn_probability"]
+assert len(submission) == len(test)
+assert submission["id"].is_unique
+assert set(submission["id"]) == set(test["id"])
+assert submission["churn_probability"].notna().all()
+assert submission["churn_probability"].between(0, 1).all()
+
+print("author_submission.csv готов к загрузке в StackMoreLayers.")
+"""
+    ),
+    md(
+        """
+## Что вынести на защиту
+
+- бизнес-вопрос и ML-постановку;
+- почему ROC-AUC подходит задаче;
+- схему разбиения и защиту от утечки;
+- сравнение One-Hot и Target Encoding;
+- таблицу моделей и результат GridSearchCV;
+- примеры крупных ошибок и важные признаки;
+- финальный локальный результат и результат StackMoreLayers;
+- ограничения решения и следующий эксперимент.
 """
     ),
 ]
@@ -1249,11 +1533,12 @@ def main() -> None:
             """
 Для преподавателя:
 
-- `solution_notes.md` — разбор решения и список идей.
-- `author_solution.ipynb` — авторское решение с RandomForest, ExtraTrees, sklearn-бустингом, XGBoost, LightGBM и CatBoost.
-- `simple_baseline.ipynb` — простой baseline на RandomForest, который можно выдать ученикам по желанию.
+- `solution_notes.md` — план четырёх занятий, разбор решения, типичные ошибки и критерии защиты.
+- `author_solution.ipynb` — полный авторский путь от предобработки до обоснованного финального выбора.
+- `simple_baseline.ipynb` — простой pipeline с логистической регрессией для первого занятия.
+- `score_submissions.ipynb` и `data/private_target.csv` — только служебная локальная проверка комплекта.
 
-Для итогового соревнования baseline удобно выдавать слабым группам, а сильным оставить только условие и данные.
+Baseline можно выдать группе целиком или только тем командам, которым нужен стартовый каркас. Официальные результаты проекта принимает StackMoreLayers.
 """,
         ),
     ]

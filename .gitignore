@@ -5,6 +5,7 @@ __pycache__/
 .venv/
 venv/
 .codex_competition_pydeps/
+.codex_paramiko/
 catboost_info/
 *_hand_solution.ipynb
 *.egg-info/

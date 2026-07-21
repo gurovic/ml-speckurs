@@ -1,0 +1,93 @@
+{
+  "exercise_id": 1401,
+  "course_id": 1,
+  "display_format": "notebook",
+  "general_criteria": "Практика по кластеризации. Код ученика — в ячейках после '# Ваш код'; текстовые выводы — в ячейках '**Вывод:**'. Задания 1–6 на наборе data/students.csv (18 студентов, навыки S1–S10), задания 7–10 на data/health.csv (310 пациентов, 6 показателей здоровья в разных шкалах). Везде linkage(method='ward', metric='euclidean'), fcluster(criterion='maxclust'), KMeans(random_state=42, n_init=10). Проверяй наличие кода, корректность параметров и соответствие числовых результатов эталону; за отсутствующие текстовые выводы снимай баллы по пунктам.",
+  "feedback_style": "фидбек короткий, деловой, без эмодзи",
+  "check_evaluated": true,
+  "coefficient": 1.0,
+  "use_context": false,
+  "checking_model": "gpt-5.5",
+  "subtasks": [
+    {
+      "title": "### <font color='DarkOrange'>Задание 1 [2 балла]</font>",
+      "problem": "Загрузка students.csv и вывод размера.",
+      "criteria": "- Данные загружены через pd.read_csv('data/students.csv') — 1 балл.\n- Задан список навыков skills = S1..S10 и выведён размер (18, 11) — 1 балл.\nПри отсутствии кода — 0 баллов.",
+      "reference_solution": "stu = pd.read_csv('data/students.csv')\nskills = [f'S{i}' for i in range(1,11)]\nprint(stu.shape)\n# Ожидаемый результат: (18, 11)",
+      "max_score": 2,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 2 [3 балла]</font>",
+      "problem": "Иерархическая кластеризация и дендрограмма студентов.",
+      "criteria": "- Вызван linkage(stu[skills], method='ward', metric='euclidean') — 1.5 балла.\n- Построена дендрограмма с именами студентов (labels=stu['NAME'].tolist()) — 1 балл.\n- Вывод: отмечены 3 крупные ветви — 0.5 балла.\nЕсли method/metric не ward/euclidean — снять 1 балл. При отсутствии текстового вывода — снять 0.5 балла.",
+      "reference_solution": "link_s = linkage(stu[skills], method='ward', metric='euclidean')\ndendrogram(link_s, labels=stu['NAME'].tolist())\n# Ожидаемый результат: 3 крупные ветви",
+      "max_score": 3,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 3 [3 балла]</font>",
+      "problem": "Каменистая осыпь и выбор числа групп.",
+      "criteria": "- Построен график расстояний слияний в обратном порядке (link_s[:,2][::-1]) — 1.5 балла.\n- Определено число групп K=3 (перелом; 32.9→20.9→10.8) — 1 балл.\n- Вывод с обоснованием по перелому — 0.5 балла.\nЕсли названо только K=4 без упоминания перелома на 3 — снять 0.5 балла. При отсутствии вывода — снять 0.5 балла.",
+      "reference_solution": "dist_rev = link_s[:,2][::-1]\nplt.plot(range(1,len(dist_rev)+1), dist_rev, marker='o')\n# Ожидаемый результат: перелом на K = 3 (детализация — 4)",
+      "max_score": 3,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 4 [3 балла]</font>",
+      "problem": "Разрез дерева на 3 и 4 кластера, размеры групп.",
+      "criteria": "- fcluster на 3 кластера, размеры {5,4,9} — 1.5 балла.\n- fcluster на 4 кластера, размеры {5,4,3,6} — 1.5 балла.\nЕсли criterion не 'maxclust' — снять 1 балл. Если выведен только один вариант разбиения — снять 1.5 балла.",
+      "reference_solution": "stu['cl3']=fcluster(link_s,3,criterion='maxclust')\nstu['cl4']=fcluster(link_s,4,criterion='maxclust')\n# Ожидаемый результат: 3->{5,4,9}; 4->{5,4,3,6}",
+      "max_score": 3,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 5 [3 балла]</font>",
+      "problem": "Центроиды при K=4 и описание групп.",
+      "criteria": "- Вычислены центроиды groupby('cl4')[skills].mean() — 1.5 балла.\n- Содержательно описаны 4 группы (аналитики / универсалы / гуманитарии) по профилям S1–4 и S5–10 — 1.5 балла.\nПри отсутствии текстового описания групп (**Вывод:**) — снять 1.5 балла.",
+      "reference_solution": "stu.groupby('cl4')[skills].mean().round(1)\n# Ожидаемый результат: аналитики(S1-4~9,S5-10~4); универсалы(~9); гуманитарии со ср.аналитикой(S1-4~6,S5-10~8); гуманитарии(S1-4~4,S5-10~8.7)",
+      "max_score": 3,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 6 [3 балла]</font>",
+      "problem": "K-Means(4) и сравнение с иерархией через crosstab.",
+      "criteria": "- KMeans(n_clusters=4, random_state=42, n_init=10) обучен и предсказаны метки — 1.5 балла.\n- Построен crosstab(cl4, kmeans4), каждый кластер целиком в одном столбце K-Means — 1 балл.\n- Вывод: методы согласуются — 0.5 балла.\nЕсли random_state не 42 — снять 0.5 балла. При отсутствии вывода — снять 0.5 балла.",
+      "reference_solution": "km_s=KMeans(4,random_state=42,n_init=10)\nstu['kmeans4']=km_s.fit_predict(stu[skills])\npd.crosstab(stu['cl4'],stu['kmeans4'])\n# Ожидаемый результат: каждый кластер целиком в одном столбце — согласуются",
+      "max_score": 3,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 7 [3 балла]</font>",
+      "problem": "Загрузка health.csv и стандартизация показателей.",
+      "criteria": "- Данные загружены через pd.read_csv('data/health.csv') и выведён размер (310, 6) — 1.5 балла.\n- Все 6 показателей стандартизованы StandardScaler — 1.5 балла.\nЕсли стандартизация не выполнена — снять 1.5 балла. При отсутствии кода — 0 баллов.",
+      "reference_solution": "hlt=pd.read_csv('data/health.csv')\nfeat=['age','bmi','glucose','sbp','pulse','chol']\nXh=pd.DataFrame(StandardScaler().fit_transform(hlt[feat]),columns=feat)\n# Ожидаемый результат: (310, 6)",
+      "max_score": 3,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 8 [3 балла]</font>",
+      "problem": "Иерархия на стандартизованных данных, осыпь, число групп риска.",
+      "criteria": "- linkage(Xh, ward, euclidean) на стандартизованных данных — 1 балл.\n- Каменистая осыпь построена — 1 балл.\n- Определено K=3 (перелом 23.2→13.0) с выводом — 1 балл.\nЕсли кластеризация на нестандартизованных данных — снять 1 балл. При отсутствии вывода — снять 0.5 балла.",
+      "reference_solution": "link_h=linkage(Xh, method='ward', metric='euclidean')\ndist_rev=link_h[:,2][::-1]\n# Ожидаемый результат: перелом на K = 3 (42.7 -> 23.2 -> 13.0)",
+      "max_score": 3,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 9 [4 балла]</font>",
+      "problem": "Разрез на 3 группы, размеры, центроиды, описание уровней риска.",
+      "criteria": "- fcluster(3) и размеры групп {133,107,70} — 1.5 балла.\n- Центроиды groupby('cluster')[feat].mean() — 1 балл.\n- Содержательно описаны 3 группы риска (низкий: возраст ~45, bmi ~22; умеренный ~55/~27; высокий ~66/~33, глюкоза ~145, sbp ~159) — 1.5 балла.\nПри отсутствии описания групп (**Вывод:**) — снять 1.5 балла.",
+      "reference_solution": "hlt['cluster']=fcluster(link_h,3,criterion='maxclust')\nhlt.groupby('cluster')[feat].mean().round(1)\n# Ожидаемый результат: размеры {133,107,70}; низкий/умеренный/высокий риск",
+      "max_score": 4,
+      "is_bonus": false
+    },
+    {
+      "title": "### <font color='DarkOrange'>Задание 10 [3 балла]</font>",
+      "problem": "Кластеризация без стандартизации и сравнение через crosstab.",
+      "criteria": "- linkage на исходных показателях + fcluster(3) — 1 балл.\n- crosstab со стандартизованным разбиением, объекты НЕ по диагонали — 1 балл.\n- Вывод: разбиения расходятся, т.к. холестерин/глюкоза (крупный масштаб) доминируют в расстоянии; стандартизация нужна — 1 балл.\nПри отсутствии объяснения (**Вывод:**) — снять 1 балл.",
+      "reference_solution": "link_raw=linkage(hlt[feat], method='ward', metric='euclidean')\nhlt['cluster_raw']=fcluster(link_raw,3,criterion='maxclust')\npd.crosstab(hlt['cluster'],hlt['cluster_raw'])\n# Ожидаемый результат: объекты НЕ по диагонали — разбиения расходятся",
+      "max_score": 3,
+      "is_bonus": false
+    }
+  ]
+}

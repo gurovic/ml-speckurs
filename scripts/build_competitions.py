@@ -257,12 +257,15 @@ def make_logistic_data(n_train: int = 800, n_test: int = 350) -> None:
     test_full[["id", "will_finish"]].to_csv(out / "private_target.csv", index=False, encoding="utf-8")
 
 
-def make_ensemble_data(n_train: int = 1000, n_test: int = 500) -> None:
+def make_ensemble_data(n_train: int = 2500, n_test: int = 1000) -> None:
     rng = np.random.default_rng(RANDOM_STATE + 20)
     n = n_train + n_test
 
     account_age_days = np.clip(rng.gamma(3.0, 80, n), 7, 900).round(0).astype(int)
-    sessions_last_30 = np.clip(rng.poisson(9, n), 0, 35)
+    sessions_previous_30 = np.clip(rng.poisson(11, n), 0, 38)
+    sessions_last_30 = np.clip(
+        np.round(sessions_previous_30 + rng.normal(-1, 4, n)), 0, 35
+    ).astype(int)
     minutes_per_session = np.clip(rng.normal(32, 14, n), 3, 120).round(1)
     days_since_last_activity = np.clip(rng.exponential(9, n), 0, 60).round(0).astype(int)
     support_tickets = np.clip(rng.poisson(0.9, n), 0, 8)
@@ -281,38 +284,51 @@ def make_ensemble_data(n_train: int = 1000, n_test: int = 500) -> None:
     favorite_topic = rng.choice(["python", "data", "games", "math", "web"], size=n, p=[0.27, 0.24, 0.2, 0.16, 0.13])
 
     channel_effect = pd.Series(acquisition_channel).map(
-        {"реклама": 0.25, "друг": -0.25, "поиск": -0.05, "школа": -0.15, "соцсети": 0.1}
+        {"реклама": 0.15, "друг": -0.15, "поиск": -0.05, "школа": -0.1, "соцсети": 0.08}
     ).to_numpy()
-    plan_effect = pd.Series(plan_type).map({"basic": 0.08, "plus": -0.08, "premium": 0.18}).to_numpy()
-    device_effect = pd.Series(device).map({"phone": 0.12, "laptop": -0.1, "tablet": 0.08}).to_numpy()
+    plan_effect = pd.Series(plan_type).map({"basic": 0.03, "plus": -0.05, "premium": 0.08}).to_numpy()
+    device_effect = pd.Series(device).map({"phone": 0.06, "laptop": -0.06, "tablet": 0.04}).to_numpy()
 
     low_activity = sessions_last_30 < 5
-    expensive_without_discount = (plan_price >= 1590) & (discount_percent <= 5)
-    many_tickets_and_low_homework = (support_tickets >= 3) & (homework_completion < 0.45)
-    premium_low_activity = (plan_type == "premium") & low_activity
+    long_inactivity = days_since_last_activity >= 18
+    low_homework = homework_completion < 0.35
+    many_tickets_and_low_homework = (support_tickets >= 3) & (homework_completion < 0.55)
+    price_after_discount = plan_price * (1 - discount_percent / 100)
+    price_pressure = (price_after_discount >= 1400) & (sessions_last_30 < 8)
+    premium_low_activity = (plan_type == "premium") & (sessions_last_30 < 7)
     loyal_friend_channel = (acquisition_channel == "друг") & (previous_courses >= 2)
+    mobile_only_phone = (mobile_share > 0.85) & (device == "phone")
+    irregular_inactivity = (avg_gap_days > 12) & (days_since_last_activity > 10)
+    activity_drop = sessions_last_30 <= np.maximum(2, 0.5 * sessions_previous_30)
+
+    nonlinear_risk = (
+        1.0 * low_activity.astype(int)
+        + 0.9 * long_inactivity.astype(int)
+        + 0.8 * low_homework.astype(int)
+        + 0.75 * many_tickets_and_low_homework.astype(int)
+        + 0.75 * price_pressure.astype(int)
+        + 0.65 * premium_low_activity.astype(int)
+        - 0.7 * loyal_friend_channel.astype(int)
+        + 0.55 * mobile_only_phone.astype(int)
+        + 0.65 * irregular_inactivity.astype(int)
+        + 1.0 * activity_drop.astype(int)
+    )
 
     logit = (
-        -1.05
-        - 0.055 * sessions_last_30
-        - 1.15 * homework_completion
-        + 0.048 * days_since_last_activity
-        + 0.04 * avg_gap_days
-        + 0.22 * support_tickets
-        + 0.58 * failed_payments
-        + 0.00022 * plan_price
-        - 0.018 * discount_percent
-        - 0.0015 * account_age_days
-        - 0.13 * previous_courses
-        + 0.35 * low_activity.astype(int)
-        + 0.45 * expensive_without_discount.astype(int)
-        + 0.58 * many_tickets_and_low_homework.astype(int)
-        + 0.5 * premium_low_activity.astype(int)
-        - 0.45 * loyal_friend_channel.astype(int)
+        -1.75
+        - 0.025 * sessions_last_30
+        - 0.45 * homework_completion
+        + 0.018 * days_since_last_activity
+        + 0.012 * avg_gap_days
+        + 0.1 * support_tickets
+        + 0.28 * failed_payments
+        - 0.0005 * account_age_days
+        - 0.05 * previous_courses
+        + nonlinear_risk
         + channel_effect
         + plan_effect
         + device_effect
-        + rng.normal(0, 0.55, n)
+        + rng.normal(0, 0.35, n)
     )
     churn_probability = sigmoid(logit)
     churn = rng.binomial(1, churn_probability)
@@ -321,6 +337,7 @@ def make_ensemble_data(n_train: int = 1000, n_test: int = 500) -> None:
         {
             "id": np.arange(1, n + 1),
             "account_age_days": account_age_days,
+            "sessions_previous_30": sessions_previous_30,
             "sessions_last_30": sessions_last_30,
             "minutes_per_session": minutes_per_session,
             "days_since_last_activity": days_since_last_activity,
@@ -944,36 +961,42 @@ submission.head()
 ENSEMBLE_STUDENT = [
     md(
         """
-# Итоговое соревнование по модулю. Классификация ансамблями: риск ухода пользователя
+# Итоговый проект по модулю. Прогноз ухода пользователя
 
-Это итоговая задача в формате учебного leaderboard после деревьев, случайного леса и градиентного бустинга.
+Проект рассчитан на **четыре занятия по 90 минут**. Вы пройдёте полный путь от бизнес-вопроса до финальной модели и защиты решения.
 
-**Задача:** предсказать `churn` — уйдёт ли пользователь из образовательного сервиса в ближайший месяц.
+**Бизнес-вопрос:** каким пользователям образовательного сервиса стоит заранее предложить помощь, чтобы снизить риск ухода?
 
-**Главная метрика соревнования:** ROC-AUC. Больше — лучше.
+**ML-задача:** по данным о пользователе оценить вероятность того, что он уйдёт в ближайший месяц. В обучающих данных факт ухода хранится в столбце `churn`.
 
-Интуитивно ROC-AUC проверяет, насколько хорошо модель ставит более высокий риск тем пользователям, которые действительно ушли.
+**Метрика StackMoreLayers:** ROC-AUC по столбцу `churn_probability`; больше — лучше. Для этой метрики нужно сдавать вероятности, а не метки 0 и 1.
 """
     ),
     md(
         """
-## Правила и ориентир на 90 минут
+## Маршрут проекта
 
-1. 0–10 мин — понять данные, метрику и baseline.
-2. 10–30 мин — обучить первый ансамбль.
-3. 30–65 мин — сравнить несколько ансамблей.
-4. 65–80 мин — улучшить признаки и параметры.
-5. 80–90 мин — сохранить submission и обсудить победившие идеи.
+| Занятие | Главный вопрос | Результат занятия |
+|---:|---|---|
+| 1 | Как перевести бизнес-задачу в ML-задачу? | Постановка, анализ данных, честное разбиение, простой baseline и первый сабмит |
+| 2 | Как подготовить данные без утечки? | Воспроизводимый pipeline, новые признаки и улучшенный сабмит |
+| 3 | Какая модель работает лучше и почему? | Честное сравнение моделей, подбор параметров, анализ ошибок и новый сабмит |
+| 4 | Как обосновать итоговое решение? | Финальная модель, финальный сабмит, отчёт и защита |
 
-Обязательный набор моделей для сравнения:
+Рабочий код и таблицу экспериментов сохраняйте в этом ноутбуке. После каждого занятия должен оставаться воспроизводимый результат: ноутбук запускается сверху вниз и создаёт корректный CSV-файл.
+"""
+    ),
+    md(
+        """
+## Работа со StackMoreLayers
 
-- `RandomForestClassifier`;
-- `ExtraTreesClassifier`;
-- `GradientBoostingClassifier`;
-- `HistGradientBoostingClassifier`;
-- `XGBClassifier`;
-- `LGBMClassifier`;
-- `CatBoostClassifier`.
+1. Скачайте на странице соревнования `train.csv`, `test.csv` и `sample_submission.csv`.
+2. Обучайте модель только по `train.csv`. Ответы для `test.csv` участникам недоступны.
+3. Создайте CSV с теми же `id`, что в `test.csv`, и вероятностями в столбце `churn_probability`.
+4. Загрузите файл в StackMoreLayers. Система автоматически посчитает ROC-AUC и обновит таблицу лидеров.
+5. Записывайте не только результат на платформе, но и результат честной локальной проверки. Таблица лидеров не заменяет validation.
+
+Не используйте `data/private_target.csv`: это служебный файл авторов курса, который не входит в материалы участника.
 """
     ),
     code(
@@ -982,24 +1005,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
-from sklearn.compose import ColumnTransformer
-from sklearn.dummy import DummyClassifier
-from sklearn.ensemble import (
-    ExtraTreesClassifier,
-    GradientBoostingClassifier,
-    HistGradientBoostingClassifier,
-    RandomForestClassifier,
-)
-from sklearn.impute import SimpleImputer
-from sklearn.metrics import average_precision_score, f1_score, precision_score, recall_score, roc_auc_score
-from sklearn.model_selection import train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder
-
-from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
-from catboost import CatBoostClassifier
+import matplotlib.pyplot as plt
 
 RANDOM_STATE = 42
 DATA_DIR = Path("data")
@@ -1018,285 +1024,338 @@ display(sample_submission.head())
     ),
     md(
         """
-## Validation
+## Словарь данных
 
-Доля класса 1 может быть не 50/50, поэтому используем `stratify=y`.
-"""
-    ),
-    code(
-        """
-target = "churn"
-id_col = "id"
+Одна строка — один пользователь образовательного сервиса.
 
-features = [c for c in train.columns if c not in [target, id_col]]
-X = train[features]
-y = train[target]
+| Группа | Столбцы | Смысл |
+|---|---|---|
+| Идентификатор | `id` | Номер пользователя; не является содержательным признаком |
+| Активность | `account_age_days`, `sessions_previous_30`, `sessions_last_30`, `minutes_per_session`, `days_since_last_activity`, `avg_gap_days` | Возраст аккаунта и активность за два последних периода |
+| Взаимодействие | `support_tickets`, `failed_payments`, `homework_completion`, `previous_courses` | Учёба, обращения и оплаты |
+| Тариф | `discount_percent`, `plan_price`, `plan_type` | Цена, скидка и вид тарифа |
+| Контекст | `mobile_share`, `device`, `region`, `acquisition_channel`, `favorite_topic` | Устройство, регион и источник пользователя |
+| Цель | `churn` | 1 — пользователь ушёл, 0 — остался; есть только в `train.csv` |
 
-print("Доля ушедших пользователей:", round(y.mean(), 3))
-
-X_train, X_val, y_train, y_val = train_test_split(
-    X, y, test_size=0.25, random_state=RANDOM_STATE, stratify=y
-)
-"""
-    ),
-    code(
-        """
-def make_ohe():
-    # Для HistGradientBoosting удобнее получить плотную матрицу, а не sparse.
-    try:
-        return OneHotEncoder(handle_unknown="ignore", sparse_output=False)
-    except TypeError:
-        return OneHotEncoder(handle_unknown="ignore", sparse=False)
-
-
-numeric_features = X_train.select_dtypes(include=np.number).columns.tolist()
-categorical_features = X_train.select_dtypes(exclude=np.number).columns.tolist()
-
-numeric_preprocess = Pipeline(
-    steps=[
-        ("imputer", SimpleImputer(strategy="median")),
-    ]
-)
-
-categorical_preprocess = Pipeline(
-    steps=[
-        ("imputer", SimpleImputer(strategy="most_frequent")),
-        ("onehot", make_ohe()),
-    ]
-)
-
-preprocess = ColumnTransformer(
-    transformers=[
-        ("num", numeric_preprocess, numeric_features),
-        ("cat", categorical_preprocess, categorical_features),
-    ]
-)
+Перед моделированием проверьте типы столбцов, пропуски, диапазоны значений и долю класса 1. Смысл каждого созданного признака вы должны уметь объяснить на защите.
 """
     ),
     md(
         """
-## Baseline и функция оценки
+# Занятие 1. Постановка ML-задачи
 
-Baseline здесь почти ничего не знает об объектах. Хорошая модель должна заметно обогнать его.
+## 1.1. Переведите бизнес-вопрос в ML-постановку
+
+Запишите в markdown-ячейке:
+
+- что является объектом;
+- какой столбец является целевой переменной;
+- почему это классификация, а не регрессия;
+- что означает прогноз модели для бизнеса;
+- почему главной метрикой выбрана ROC-AUC.
 """
     ),
     code(
-        """
-def evaluate_model(name, model, X_train, y_train, X_val, y_val):
-    model.fit(X_train, y_train)
-    proba = model.predict_proba(X_val)[:, 1]
-    pred = (proba >= 0.5).astype(int)
-    return {
-        "model": name,
-        "roc_auc": roc_auc_score(y_val, proba),
-        "average_precision": average_precision_score(y_val, proba),
-        "f1_at_0_5": f1_score(y_val, pred, zero_division=0),
-        "precision_at_0_5": precision_score(y_val, pred, zero_division=0),
-        "recall_at_0_5": recall_score(y_val, pred, zero_division=0),
-    }
-
-
-dummy = Pipeline(
-    steps=[
-        ("preprocess", preprocess),
-        ("model", DummyClassifier(strategy="prior")),
-    ]
-)
-
-pd.DataFrame([evaluate_model("Dummy prior", dummy, X_train, y_train, X_val, y_val)])
+        """# Ваш ответ и при необходимости код
 """
     ),
     md(
         """
-## Сравнение ансамблей
+## 1.2. Изучите данные
 
-Сначала сравните несколько моделей “как есть”, а потом улучшайте самую перспективную.
+Проверьте размер таблиц, типы столбцов, пропуски, дубликаты, распределение цели и несколько распределений признаков. Сформулируйте не менее трёх наблюдений, которые могут повлиять на моделирование.
 """
     ),
     code(
-        """
-models = {
-    "RandomForest": RandomForestClassifier(
-        n_estimators=250,
-        max_depth=None,
-        min_samples_leaf=3,
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
-    ),
-    "ExtraTrees": ExtraTreesClassifier(
-        n_estimators=250,
-        max_depth=None,
-        min_samples_leaf=3,
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
-    ),
-    "GradientBoosting": GradientBoostingClassifier(
-        n_estimators=160,
-        learning_rate=0.05,
-        max_depth=3,
-        random_state=RANDOM_STATE,
-    ),
-    "HistGradientBoosting": HistGradientBoostingClassifier(
-        max_iter=180,
-        learning_rate=0.05,
-        max_leaf_nodes=31,
-        random_state=RANDOM_STATE,
-    ),
-    "XGBoost": XGBClassifier(
-        n_estimators=220,
-        learning_rate=0.05,
-        max_depth=3,
-        subsample=0.9,
-        colsample_bytree=0.9,
-        eval_metric="logloss",
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
-    ),
-    "LightGBM": LGBMClassifier(
-        n_estimators=220,
-        learning_rate=0.05,
-        num_leaves=31,
-        random_state=RANDOM_STATE,
-        n_jobs=-1,
-        verbose=-1,
-    ),
-    "CatBoost": CatBoostClassifier(
-        iterations=220,
-        learning_rate=0.05,
-        depth=4,
-        loss_function="Logloss",
-        random_seed=RANDOM_STATE,
-        verbose=False,
-    ),
-}
-
-rows = []
-trained_models = {}
-
-for name, estimator in models.items():
-    pipe = Pipeline(
-        steps=[
-            ("preprocess", preprocess),
-            ("model", estimator),
-        ]
-    )
-    rows.append(evaluate_model(name, pipe, X_train, y_train, X_val, y_val))
-    trained_models[name] = pipe
-
-leaderboard = pd.DataFrame(rows).sort_values("roc_auc", ascending=False)
-leaderboard
+        """# Ваш код исследования данных
 """
     ),
     md(
         """
-## Идеи для улучшения
+## 1.3. Подготовьте честную локальную проверку
 
-Что можно пробовать:
+Отделите `id` и `churn` от признаков. Разделите обучающие данные на обучающую и отложенную части со стратификацией. Зафиксируйте `random_state`, чтобы все модели сравнивались на одних объектах.
 
-- `n_estimators`: больше деревьев часто лучше, но медленнее;
-- `max_depth` или `max_leaf_nodes`: ограничивают сложность деревьев;
-- `min_samples_leaf`: делает деревья спокойнее и иногда улучшает качество;
-- `learning_rate` и `n_estimators` для бустинга;
-- признаки вроде `sessions_per_age_day`, `price_after_discount`, `is_inactive`;
-- усреднение вероятностей двух сильных моделей.
-
-Главное правило: сравнивайте варианты по одной и той же validation-выборке.
+Объясните, почему ответы отложенной части нельзя использовать при обучении преобразований и выборе признаков.
 """
     ),
     code(
-        """
-def add_features(df):
-    df = df.copy()
-    df["sessions_per_100_days"] = df["sessions_last_30"] / (df["account_age_days"] / 100 + 1)
-    df["price_after_discount"] = df["plan_price"] * (1 - df["discount_percent"] / 100)
-    df["is_inactive"] = (df["days_since_last_activity"] >= 14).astype(int)
-    df["support_per_session"] = df["support_tickets"] / (df["sessions_last_30"] + 1)
-    return df
-
-
-train_fe = add_features(train)
-test_fe = add_features(test)
-
-features_fe = [c for c in train_fe.columns if c not in [target, id_col]]
-X = train_fe[features_fe]
-y = train_fe[target]
-
-X_train, X_val, y_train, y_val = train_test_split(
-    X, y, test_size=0.25, random_state=RANDOM_STATE, stratify=y
-)
-
-numeric_features = X_train.select_dtypes(include=np.number).columns.tolist()
-categorical_features = X_train.select_dtypes(exclude=np.number).columns.tolist()
-
-preprocess_fe = ColumnTransformer(
-    transformers=[
-        ("num", numeric_preprocess, numeric_features),
-        ("cat", categorical_preprocess, categorical_features),
-    ]
-)
-
-best_model = Pipeline(
-    steps=[
-        ("preprocess", preprocess_fe),
-        (
-            "model",
-            GradientBoostingClassifier(
-                n_estimators=220,
-                learning_rate=0.04,
-                max_depth=3,
-                random_state=RANDOM_STATE,
-            ),
-        ),
-    ]
-)
-
-report = evaluate_model("Tuned GradientBoosting", best_model, X_train, y_train, X_val, y_val)
-pd.DataFrame([report])
+        """# Ваш код разбиения
 """
     ),
     md(
         """
-## Финальное обучение и submission
+## 1.4. Постройте простой baseline и сделайте первый сабмит
 
-Для ROC-AUC нужно сдавать вероятность класса 1, а не только 0/1.
+Соберите минимальный pipeline, посчитайте ROC-AUC на отложенной части, затем обучите его на всём `train.csv` и создайте `submission_lesson_1.csv`.
+
+Если преподаватель выдал `simple_baseline.ipynb`, разберите каждую его часть и измените хотя бы один осмысленный элемент. Не ограничивайтесь запуском готового кода.
+
+**Результат занятия 1:** постановка задачи, три наблюдения о данных, схема разбиения, локальный ROC-AUC и первая запись в таблице лидеров StackMoreLayers.
 """
     ),
     code(
-        """
-final_X = train_fe[features_fe]
-final_y = train_fe[target]
-
-final_model = best_model
-final_model.fit(final_X, final_y)
-
-test_proba = final_model.predict_proba(test_fe[features_fe])[:, 1]
-
-submission = pd.DataFrame(
-    {
-        "id": test_fe["id"],
-        "churn_probability": np.round(test_proba, 5),
-    }
-)
-
-submission.to_csv("submission.csv", index=False)
-submission.head()
+        """# Ваш код baseline и первого сабмита
 """
     ),
     md(
         """
-## Что сдать
+# Занятие 2. Подготовка данных и pipeline
 
-Сдайте файл `submission.csv`.
+## 2.1. Соберите воспроизводимую предобработку
 
-В нём должны быть ровно два столбца:
+- Для числовых столбцов обработайте пропуски. Масштабирование обязательно для линейной модели и допустимо оставить в общем pipeline.
+- Для категориальных столбцов обработайте пропуски и сравните One-Hot Encoding с Target Encoding.
+- Все преобразования, которые что-либо узнают из данных, должны обучаться только внутри train-части или внутри каждого шага кросс-валидации.
+- Если используете Target Encoding, поместите его внутрь pipeline. Кодирование категорий по всей таблице до разбиения создаёт утечку цели.
 
-- `id`;
-- `churn_probability` — вероятность ухода пользователя.
+Зафиксируйте, какой вариант кодирования с какой моделью дал лучший локальный ROC-AUC.
+"""
+    ),
+    code(
+        """# Ваш код предобработки и pipeline
+"""
+    ),
+    md(
+        """
+## 2.2. Создайте и отберите признаки
 
-Если работаете в команде, переименуйте файл в понятное имя, например `team_ivan_masha.csv`.
+Предложите признаки, которые имеют понятный смысл для задачи ухода. Возможные направления: изменение активности между двумя периодами, активность относительно возраста аккаунта, цена после скидки, длительное отсутствие, обращения в поддержку относительно числа сессий.
+
+Для каждого признака запишите гипотезу, затем сравните модель с ним и без него на одной и той же схеме проверки. Не создавайте признаки с использованием `churn` вне корректного pipeline.
+
+**Результат занятия 2:** единый pipeline, таблица проверенных признаков, улучшенный локальный результат и `submission_lesson_2.csv`, загруженный в StackMoreLayers.
+"""
+    ),
+    code(
+        """# Ваш код создания и проверки признаков
+"""
+    ),
+    md(
+        """
+# Занятие 3. Обучение и подбор моделей
+
+## 3.1. Сравните семейства моделей
+
+На одинаковой кросс-валидации сравните не менее четырёх вариантов:
+
+- логистическую регрессию;
+- одно решающее дерево;
+- случайный лес;
+- градиентный бустинг, включая `CatBoostClassifier`.
+
+XGBoost и LightGBM также доступны и подходят для дополнительных экспериментов. Для каждой строки таблицы сохраняйте название модели, параметры, средний ROC-AUC, разброс результата и время обучения.
+"""
+    ),
+    code(
+        """# Ваш код сравнения моделей с cross_val_score или cross_validate
+"""
+    ),
+    md(
+        """
+## 3.2. Подберите гиперпараметры
+
+Выберите одну перспективную модель и задайте небольшой осмысленный `param_grid`. Выполните `GridSearchCV` с ROC-AUC и той же схемой кросс-валидации. Объясните смысл каждого перебираемого параметра.
+
+Не подбирайте параметры по результату StackMoreLayers: частые попытки подстроиться под таблицу лидеров дают ненадёжную оценку.
+"""
+    ),
+    code(
+        """# Ваш код GridSearchCV
+"""
+    ),
+    md(
+        """
+## 3.3. Проанализируйте модель
+
+- Найдите объекты отложенной части с самыми большими ошибками по вероятности.
+- Посмотрите важность исходных признаков, например с помощью permutation importance.
+- Сформулируйте хотя бы две гипотезы: почему модель ошибается и какой следующий эксперимент это проверит.
+
+**Результат занятия 3:** таблица моделей, подобранные параметры, анализ ошибок и важности признаков, `submission_lesson_3.csv` в StackMoreLayers.
+"""
+    ),
+    code(
+        """# Ваш код анализа ошибок и важности признаков
+"""
+    ),
+    md(
+        """
+# Занятие 4. Финальная модель и защита
+
+## 4.1. Зафиксируйте финальное решение
+
+Выберите модель по заранее определённой локальной схеме проверки. До финального обучения запишите:
+
+- выбранный pipeline и параметры;
+- локальный ROC-AUC;
+- почему вы доверяете этой оценке;
+- какие эксперименты вы отклонили и почему.
+
+После выбора обучите pipeline на всём `train.csv`, получите вероятности для `test.csv` и создайте `submission_final.csv`.
+"""
+    ),
+    code(
+        """# Ваш код финального обучения и создания submission_final.csv
+"""
+    ),
+    md(
+        """
+## 4.2. Проверьте файл перед загрузкой
+
+Файл должен содержать ровно два столбца:
+
+- `id` — те же идентификаторы и в том же количестве, что в `test.csv`;
+- `churn_probability` — числа от 0 до 1 без пропусков.
+"""
+    ),
+    code(
+        """
+submission_path = Path("submission_final.csv")
+submission = pd.read_csv(submission_path)
+
+assert submission.columns.tolist() == ["id", "churn_probability"]
+assert len(submission) == len(test)
+assert submission["id"].is_unique
+assert set(submission["id"]) == set(test["id"])
+assert submission["churn_probability"].notna().all()
+assert submission["churn_probability"].between(0, 1).all()
+
+print("Формат файла корректен; его можно загружать в StackMoreLayers.")
+"""
+    ),
+    md(
+        """
+## 4.3. Подготовьте отчёт и защиту
+
+Заполните `project_report_template.md`. На защите за 5–7 минут покажите:
+
+1. бизнес-задачу и ML-постановку;
+2. схему проверки без утечки данных;
+3. два-три ключевых эксперимента;
+4. финальную модель и локальную метрику;
+5. итоговый результат StackMoreLayers;
+6. за счёт чего решение улучшилось и что вы попробовали бы дальше.
+
+**Результат занятия 4:** финальный сабмит в StackMoreLayers, воспроизводимый ноутбук, заполненный отчёт и защита проекта.
+
+## Журнал экспериментов
+
+Ведите его с первого занятия.
+
+| № | Изменение | Схема проверки | Локальный ROC-AUC | Результат StackMoreLayers | Вывод |
+|---:|---|---|---:|---:|---|
+| 1 | Baseline |  |  |  |  |
+| 2 |  |  |  |  |  |
+| 3 |  |  |  |  |  |
+| 4 |  |  |  |  |  |
+
 """
     ),
 ]
+
+
+PROJECT_REPORT_TEMPLATE = """
+# Отчёт по итоговому проекту «Прогноз ухода пользователя»
+
+## Команда
+
+- Участники:
+- Ссылка или название команды в StackMoreLayers:
+- Дата финального сабмита:
+
+## 1. Бизнес-задача и ML-постановка
+
+- Какое решение хочет принять образовательный сервис?
+- Что является объектом, признаками и целью?
+- Почему задача относится к бинарной классификации?
+- Что означает вероятность, которую выдаёт модель?
+- Почему проект оценивается по ROC-AUC?
+
+## 2. Данные и схема проверки
+
+- Размер и состав данных:
+- Доля класса 1:
+- Найденные проблемы качества данных:
+- Как выполнено локальное разбиение или кросс-валидация:
+- Как предотвращена утечка данных:
+
+## 3. Предобработка и признаки
+
+Опишите обработку числовых и категориальных столбцов, пропусков и масштабирования. Если использовали Target Encoding, объясните, почему он не видел ответы validation.
+
+| Изменение | Гипотеза | Локальный ROC-AUC до | Локальный ROC-AUC после | Вывод |
+|---|---|---:|---:|---|
+|  |  |  |  |  |
+
+## 4. Эксперименты с моделями
+
+| Модель | Основные параметры | Схема проверки | Средний ROC-AUC | Разброс | Решение |
+|---|---|---|---:|---:|---|
+| Baseline |  |  |  |  |  |
+|  |  |  |  |  |  |
+|  |  |  |  |  |  |
+
+## 5. Финальная модель
+
+- Выбранная модель или смесь моделей:
+- Почему выбрана именно она:
+- Локальный ROC-AUC:
+- Результат финального сабмита в StackMoreLayers:
+- Место в таблице лидеров на момент завершения:
+
+## 6. Анализ результата
+
+- Какие объекты оказались сложными для модели?
+- Какие признаки наиболее важны и как это интерпретировать?
+- За счёт чего получилось главное улучшение?
+- Какие ограничения есть у решения?
+- Какой следующий эксперимент вы бы провели?
+
+## 7. План защиты на 5–7 минут
+
+1. Бизнес-задача и ML-постановка.
+2. Данные, метрика и честная проверка.
+3. Два-три ключевых эксперимента.
+4. Финальная модель и анализ ошибок.
+5. Результат StackMoreLayers, выводы и ограничения.
+"""
+
+
+ENSEMBLE_DATA_CARD = """
+# Карточка данных итогового проекта
+
+## Происхождение
+
+Данные синтетические: они созданы специально для учебного проекта и не описывают реальных пользователей. В таблицах нет персональных данных.
+
+Сценарий имитирует образовательный сервис. Одна строка соответствует пользователю, а `churn` показывает, ушёл ли он в следующем месяце.
+
+## Размер и разделение
+
+- `train.csv`: 2500 строк, признаки и целевая переменная `churn`;
+- `test.csv`: 1000 строк, только признаки;
+- `sample_submission.csv`: пример формата ответа;
+- `private_target.csv`: служебные ответы авторов курса, не выдаются участникам.
+
+Разделение выполнено заранее и воспроизводимо благодаря фиксированному зерну генератора.
+
+## Зачем данные устроены именно так
+
+В целевой переменной есть одновременно:
+
+- простые зависимости, которые может заметить линейная модель;
+- пороговые эффекты, например длительное отсутствие;
+- взаимодействия признаков, например высокая цена вместе с низкой активностью;
+- изменение активности между предыдущими и последними 30 днями;
+- случайный шум, поэтому идеальное качество недостижимо.
+
+Это создаёт рабочий baseline и оставляет пространство для деревьев, случайного леса, бустинга и осмысленного конструирования признаков.
+
+## Ограничения
+
+Данные подходят для обучения ML-процессу, но по ним нельзя делать выводы о поведении реальных людей или эффективности настоящего образовательного сервиса. Названия полей и закономерности упрощены ради занятия.
+"""
 
 
 def score_notebook(metric_kind: str) -> list[dict]:
@@ -1467,6 +1526,8 @@ def write_materials() -> None:
         replaced_cells(LOGISTIC_STUDENT, practice_data_replacement),
     )
     write_notebook(ensemble_dir / "ensemble_classification_competition.ipynb", ENSEMBLE_STUDENT)
+    write_readme(ensemble_dir / "project_report_template.md", PROJECT_REPORT_TEMPLATE)
+    write_readme(ensemble_dir / "data" / "DATA_CARD.md", ENSEMBLE_DATA_CARD)
 
     write_notebook(linear_dir / "score_submissions.ipynb", score_notebook("linear"))
     write_notebook(logistic_dir / "score_submissions.ipynb", score_notebook("logistic"))
@@ -1523,23 +1584,58 @@ def write_materials() -> None:
     write_readme(
         ensemble_dir / "README.md",
         """
-# Итоговое соревнование по модулю: классификация ансамблями
+# Итоговый проект по модулю: прогноз ухода пользователя
+
+Проект проходит в формате соревнования на **StackMoreLayers** и рассчитан на четыре занятия по 90 минут. Платформа принимает CSV-файлы, автоматически считает ROC-AUC и обновляет таблицу лидеров.
 
 Участникам раздать:
 
 - `ensemble_classification_competition.ipynb`
+- `project_report_template.md`
 - `data/train.csv`
 - `data/test.csv`
 - `data/sample_submission.csv`
+- `data/DATA_CARD.md`
 
-Не раздавать участникам до конца соревнования:
+По решению преподавателя можно также выдать `simple_baseline.ipynb`.
+
+Не раздавать участникам:
 
 - `data/private_target.csv`
 - `score_submissions.ipynb`
+- `author_solution.ipynb`
+- `solution_notes.md`
 
-Главная метрика: ROC-AUC по столбцу `churn_probability`, больше — лучше.
+## Формат проекта
 
-Для проверки соберите CSV команд в папку `submissions` и запустите `score_submissions.ipynb`.
+| Занятие | Содержание | Инструменты | Действие на платформе |
+|---:|---|---|---|
+| 1. Постановка ML-задачи | Бизнес-задача, классификация, анализ данных, метрика, train/validation, простой baseline | Pandas, Scikit-Learn | Первый сабмит |
+| 2. Подготовка данных и pipeline | Пропуски, масштабирование, One-Hot и Target Encoding без утечки, признаки | Pandas, `Pipeline`, `StandardScaler`, `OneHotEncoder`, `TargetEncoder` | Улучшенный сабмит |
+| 3. Обучение и подбор моделей | Логистическая регрессия, дерево, случайный лес, градиентный бустинг и CatBoost; кросс-валидация, `GridSearchCV`, ошибки и важности | Scikit-Learn, CatBoost | Серия обоснованных сабмитов |
+| 4. Финальная модель и защита | Выбор решения по локальной проверке, обучение на всём train, отчёт, презентация и защита | Scikit-Learn, CatBoost, Matplotlib | Финальный сабмит |
+
+Подробные задания и результаты каждого этапа находятся в `ensemble_classification_competition.ipynb`.
+
+## Контракт сабмита
+
+Главная метрика — **ROC-AUC**, больше — лучше. Файл должен содержать:
+
+- `id` — идентификатор из `test.csv`;
+- `churn_probability` — вероятность ухода от 0 до 1.
+
+Результат StackMoreLayers является официальным результатом соревнования. Локальная validation нужна для честного выбора идей и модели, а не для замены проверки на платформе.
+
+Данные синтетические и созданы специально для проекта: простой baseline работает, но нелинейные эффекты и взаимодействия оставляют пространство для улучшения деревьями и бустингами. Происхождение и ограничения описаны в `data/DATA_CARD.md`.
+
+## Контрольные результаты
+
+- После занятия 1: постановка, первичный анализ, разбиение, baseline и первый сабмит.
+- После занятия 2: единый pipeline, проверенные признаки и улучшенный сабмит.
+- После занятия 3: таблица сравнения моделей, подбор параметров, анализ ошибок и новый сабмит.
+- После занятия 4: финальный сабмит, воспроизводимый ноутбук, отчёт и защита.
+
+`score_submissions.ipynb` и `data/private_target.csv` сохранены только для служебной локальной проверки материалов автором курса. Во время проекта преподаватель и участники используют StackMoreLayers.
 """,
     )
 
