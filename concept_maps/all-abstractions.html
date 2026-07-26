@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Абстракции курса: рост формулировок</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --line: #d8deea;
+      --line-strong: #aab5c8;
+      --text: #202637;
+      --muted: #667085;
+      --blue: #246bfe;
+      --green: #16855b;
+      --orange: #c76b11;
+      --red: #c7353f;
+      --violet: #6f4bd8;
+      --shadow: 0 18px 45px rgba(31, 42, 68, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 1180px;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 24px 32px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 980px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    main {
+      padding: 20px 32px 32px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(360px, 1fr) auto auto;
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .switcher, .filters {
+      padding: 12px;
+    }
+
+    .label {
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 750;
+      color: #465066;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      height: 34px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      background: #fff;
+      color: #273047;
+      padding: 0 12px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    button:hover { border-color: #7f8aa2; }
+    button.active {
+      color: #fff;
+      background: #24304a;
+      border-color: #24304a;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      padding: 13px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .stat b {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(760px, 1fr) 380px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .matrix-panel {
+      overflow: hidden;
+    }
+
+    .matrix-head {
+      display: grid;
+      grid-template-columns: 180px repeat(8, minmax(84px, 1fr));
+      border-bottom: 1px solid var(--line);
+      background: #f9fafc;
+    }
+
+    .corner, .lesson {
+      min-height: 54px;
+      padding: 10px;
+      border-right: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 750;
+    }
+
+    .lesson {
+      text-align: center;
+      color: #30384e;
+    }
+
+    .lesson span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 180px repeat(8, minmax(84px, 1fr));
+      min-height: 94px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .row:last-child { border-bottom: 0; }
+
+    .level-cell {
+      padding: 12px 14px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .level-code {
+      display: inline-flex;
+      width: 38px;
+      height: 26px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 7px;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .level-title {
+      display: block;
+      font-size: 13px;
+      font-weight: 760;
+      line-height: 1.2;
+    }
+
+    .level-hint {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .cell {
+      position: relative;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      min-height: 94px;
+      padding: 11px 8px;
+      border-right: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .cell:nth-child(odd) { background: #fcfdff; }
+
+    .task {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 28px;
+      padding: 0 8px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(30, 40, 60, 0.12);
+    }
+
+    .task.support {
+      color: #283247;
+      background: #eef2f8 !important;
+      border-color: #cfd7e6;
+      box-shadow: none;
+    }
+
+    .task.selected {
+      outline: 3px solid rgba(36, 107, 254, 0.24);
+      outline-offset: 2px;
+    }
+
+    .empty {
+      color: #a0a8b8;
+      font-size: 12px;
+      align-self: center;
+      margin: auto;
+    }
+
+    .detail {
+      position: sticky;
+      top: 16px;
+      padding: 16px;
+    }
+
+    .detail h2 {
+      margin: 0 0 8px;
+      font-size: 19px;
+      line-height: 1.2;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 13px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #eef2f8;
+      color: #43506a;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .section-title {
+      margin: 14px 0 5px;
+      color: #4d5870;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .detail p {
+      margin: 0;
+      color: #30384e;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      margin-right: 5px;
+      border-radius: 3px;
+      vertical-align: -1px;
+    }
+
+    .metric { background: var(--blue); }
+    .baseline { background: var(--green); }
+    .decision { background: var(--orange); }
+    .adjacent { background: #7b879b; }
+    .setup { background: var(--violet); }
+    .final { background: var(--red); }
+    .diagnostic { background: #0f8b8d; }
+    .overview { background: #24304a; }
+
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Абстракции курса: как растет самостоятельность в формулировках</h1>
+    <p class="subtitle">Одна матрица для разных концепций. Столбцы — уроки, строки — уровень подсказки в задании. Чем ниже точка, тем больше от ученика ожидается самостоятельное распознавание нужного приема.</p>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <section class="panel switcher">
+        <div class="label">Абстракция</div>
+        <div class="buttons" id="abstraction-buttons"></div>
+      </section>
+
+      <section class="panel filters">
+        <div class="label">Показ</div>
+        <div class="buttons">
+          <button data-scope="anchors">Ключевые</button>
+          <button data-scope="all" class="active">Все вхождения</button>
+        </div>
+      </section>
+
+      <section class="panel filters">
+        <div class="label">Тип</div>
+        <div class="buttons" id="group-buttons"></div>
+      </section>
+    </div>
+
+    <section class="summary">
+      <div class="stat"><b id="stat-count">0</b><span>видимых точек</span></div>
+      <div class="stat"><b id="stat-lessons">0</b><span>уроков затронуто</span></div>
+      <div class="stat"><b id="stat-first">-</b><span>первое появление</span></div>
+      <div class="stat"><b id="stat-last">-</b><span>последнее появление</span></div>
+    </section>
+
+    <div class="layout">
+      <section class="panel matrix-panel">
+        <div class="matrix-head" id="matrix-head"></div>
+        <div id="matrix"></div>
+        <div class="legend" id="legend"></div>
+      </section>
+
+      <aside class="panel detail">
+        <h2 id="detail-title">Выберите задание</h2>
+        <div class="pill-row">
+          <span class="pill" id="detail-lesson">-</span>
+          <span class="pill" id="detail-level">-</span>
+          <span class="pill" id="detail-group">-</span>
+        </div>
+        <div class="section-title">Фрагмент задания</div>
+        <p id="detail-fragment">Клик по точке покажет конкретный фрагмент задания или обзорную тему из concept map.</p>
+        <div class="section-title">Почему такой уровень</div>
+        <p id="detail-reason">Здесь будет интерпретация: что именно задача уже дает ученику, а что он должен сделать сам.</p>
+        <div class="section-title">Что проверяется</div>
+        <p id="detail-check">Здесь будет смысловое ядро задания внутри выбранной абстракции.</p>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const lessons = [22, 24, 26, 28, 30, 32, 34, 36];
+    const levels = [
+      { y: 4, code: "F4", title: "Полный рецепт", hint: "даны функции, константы, порядок действий" },
+      { y: 3, code: "F3", title: "Guided implementation", hint: "цель ясна, часть реализации выбирает ученик" },
+      { y: 2, code: "F2", title: "Protocol prompt", hint: "задан протокол, workflow собирается самим учеником" },
+      { y: 1, code: "F1", title: "Goal prompt", hint: "сказана цель, нужный прием надо распознать" },
+      { y: 0, code: "F0", title: "Assumed habit", hint: "прием ожидается как привычка" }
+    ];
+
+    const groupNames = {
+      all: "Все типы",
+      setup: "Setup",
+      baseline: "Baseline",
+      metric: "Метрика",
+      decision: "Решение",
+      diagnostic: "Диагностика",
+      adjacent: "Соседнее",
+      final: "Финал",
+      overview: "Обзор"
+    };
+
+    const groupColors = {
+      setup: "setup",
+      baseline: "baseline",
+      metric: "metric",
+      decision: "decision",
+      diagnostic: "diagnostic",
+      adjacent: "adjacent",
+      final: "final",
+      overview: "overview"
+    };
+
+    const abstractions = {
+      validation: {
+        title: "Validation / честная проверка качества",
+        short: "Validation",
+        description: "Как ученики переходят от точного train_test_split к самостоятельному использованию validation как протокола выбора модели.",
+        groups: ["all", "setup", "decision", "diagnostic", "adjacent", "final"],
+        points: [
+          { lesson: 22, task: "2", group: "setup", y: 4, name: "Imports and split", fragment: "Names train_test_split, all imports, RANDOM_STATE = 42, TEST_SIZE = 0.2, VAL_SIZE = 0.25, two split steps, expected variable names, and size checks.", reason: "Первое появление честного разбиения сделано как полный рецепт.", check: "Механика train/validation/test split." },
+          { lesson: 22, task: "5", group: "decision", y: 4, name: "Baseline", fragment: "Names DummyClassifier(strategy='most_frequent'), train fit, validation metric, and comparison target.", reason: "Ученик тренируется оценивать модель на validation без выбора инструмента.", check: "Train on train, measure on validation." },
+          { lesson: 22, task: "8", group: "decision", y: 4, name: "Tune k", fragment: "Gives exact k list, output table names, metric name, and graph requirement.", reason: "Подбор гиперпараметра вводится как полностью заданный цикл.", check: "Выбор k по validation." },
+          { lesson: 22, task: "10", group: "final", y: 4, name: "Final test", fragment: "Explicitly says test is used after best_k; warns against test-based tuning.", reason: "Финальная test-проверка закрепляется как ритуал с явным запретом на tuning по test.", check: "Test только после выбора модели." },
+          { lesson: 24, task: "1", group: "setup", y: 3, name: "Split", fragment: "Gives train/validation tables, 70/30, RANDOM_STATE, and fit-on-train rule, but does not spell out every split variable.", reason: "Разбиение уже знакомо: часть синтаксиса и именования остается ученику.", check: "Перенос split-протокола на новую структуру данных." },
+          { lesson: 24, task: "4-5", group: "adjacent", y: 3, name: "Encoders/imputation", fragment: "Names encoders/imputation logic and repeatedly says fit on flats_train, apply to validation.", reason: "Validation discipline уходит в preprocessing, а не только в scoring.", check: "Защита от leakage при обработке признаков." },
+          { lesson: 26, task: "2", group: "setup", y: 2, name: "Validation and preprocessing", fragment: "Says split train.csv into train/validation with fixed random state and avoid leakage via ColumnTransformer or pipeline.", reason: "Задан протокол, но workflow ученик собирает сам.", check: "Честная validation-схема в competition format." },
+          { lesson: 26, task: "4", group: "decision", y: 2, name: "Improvement ideas", fragment: "Requires comparing ideas only on validation and preserving the same validation sample.", reason: "Validation становится протоколом эксперимента.", check: "Сравнение улучшений на одной validation-выборке." },
+          { lesson: 28, task: "1", group: "setup", y: 2, name: "Validation and stratification", fragment: "Requires stratified train/validation split, class distribution checks, and no test use.", reason: "Меньше механики, больше рассуждения о распределении классов.", check: "Stratified split и запрет test leakage." },
+          { lesson: 28, task: "3", group: "decision", y: 2, name: "Threshold tuning", fragment: "Requires threshold sweep on validation and saving best_threshold, but students organize the sweep.", reason: "Validation управляет не только моделью, но и правилом решения.", check: "Подбор threshold по validation." },
+          { lesson: 30, task: "0", group: "setup", y: 4, name: "Imports and split", fragment: "Again names all tools, RANDOM_STATE = 42, split ratio 70/30, and variables.", reason: "При входе в новую глубокую тему scaffolding разумно возвращается.", check: "Повтор стандартного split перед validation curve." },
+          { lesson: 30, task: "1", group: "diagnostic", y: 4, name: "Validation curve", fragment: "Gives degrees 1-15, fit/transform protocol, train/validation MSE, and chart.", reason: "Новый диагностический инструмент вводится с полным операционным рецептом.", check: "Validation curve как диагностика сложности." },
+          { lesson: 30, task: "2", group: "diagnostic", y: 3, name: "Overfitting diagnosis", fragment: "Requires choosing best_degree by validation MSE and explaining train-validation gap.", reason: "Критерий задан, но ученик интерпретирует разрыв train/validation.", check: "Диагноз overfitting/underfitting." },
+          { lesson: 30, task: "4", group: "diagnostic", y: 3, name: "K-fold CV", fragment: "Names cross_validate, 5-fold, mean/std, and the test_score caveat.", reason: "Инструмент назван, но требует понимания CV-оценки.", check: "CV как расширение validation-логики." },
+          { lesson: 32, task: "0", group: "setup", y: 4, name: "Split and imports", fragment: "Names imports, RANDOM_STATE=42, test_size=0.35, stratify=y, and notes that sklearn's test_size is used as validation.", reason: "Новая модельная семья получает явный validation setup.", check: "Стратифицированный validation split для деревьев." },
+          { lesson: 32, task: "2", group: "decision", y: 3, name: "Tune max_depth", fragment: "Gives range 1-12 and requires choosing by validation accuracy.", reason: "Цикл выбора знакомый, поэтому формулировка короче.", check: "Выбор глубины дерева по validation." },
+          { lesson: 32, task: "4-5", group: "decision", y: 3, name: "Leaf/pruning constraints", fragment: "Gives parameter lists and requires validation accuracy and conclusion.", reason: "Model-complexity control закрепляется через validation.", check: "Ограничение дерева по validation accuracy." },
+          { lesson: 34, task: "0", group: "setup", y: 4, name: "Split", fragment: "Names imports, 70/30 split, stratify=y, and RANDOM_STATE=42.", reason: "Явный reset для новой темы ансамблей.", check: "Стандартный validation setup для forests." },
+          { lesson: 34, task: "2", group: "decision", y: 3, name: "n_estimators", fragment: "Gives exact list, metric, graph, and plateau interpretation.", reason: "Эксперимент направлен, а вывод о плато делает ученик.", check: "Diminishing returns по validation." },
+          { lesson: 34, task: "3", group: "adjacent", y: 3, name: "OOB score", fragment: "Names oob_score=True, validation comparison, and interpretation of disagreement.", reason: "OOB вводится как соседняя validation-like оценка.", check: "Сравнение OOB и validation." },
+          { lesson: 34, task: "7", group: "diagnostic", y: 2, name: "Train-validation gap", fragment: "Asks for a markdown explanation and gives a conceptual hint.", reason: "Переход от coding recipe к диагностическому рассуждению.", check: "Разрыв train/validation как evidence." },
+          { lesson: 36, task: "0", group: "setup", y: 3, name: "Loading and split", fragment: "Requires train/validation/test and final-test discipline, but no exact split constants are specified in the wording.", reason: "Ожидается воспроизведение стандартного протокола.", check: "Самостоятельная сборка split discipline." },
+          { lesson: 36, task: "3", group: "diagnostic", y: 3, name: "GridSearchCV", fragment: "Names GridSearchCV, required parameters, scoring, CV metric, and validation check.", reason: "Инструмент назван, но parameter grid проектируется учеником.", check: "CV selection плюс validation check." },
+          { lesson: 36, task: "6", group: "decision", y: 2, name: "Unified ranking", fragment: "Requires collecting model results, sorting by validation RMSE, and charting.", reason: "Validation становится организующим критерием сравнения.", check: "Единый рейтинг моделей по validation." },
+          { lesson: 36, task: "8", group: "final", y: 1, name: "Final engineering conclusion", fragment: "Asks which model is best by validation and then one final test evaluation.", reason: "Validation-протокол ожидается как часть инженерного выбора.", check: "Итоговый выбор модели и одна test-проверка." }
+        ],
+        support: []
+      },
+
+      metrics: {
+        title: "Метрики качества и baseline",
+        short: "Metrics / baseline",
+        description: "Как метрика и baseline проходят путь от названных функций и переменных к инженерному аргументу о выборе модели.",
+        groups: ["all", "baseline", "metric", "decision", "adjacent"],
+        points: [
+          { lesson: 22, task: "1", group: "metric", y: 4, name: "Метрика будущей модели", fragment: "Зафиксируйте метрику будущей модели: PRIMARY_METRIC = 'accuracy'. В markdown напишите 1-2 предложения, почему accuracy здесь подходит.", reason: "Первое появление метрики: название и значение переменной даны прямо.", check: "Связь бизнес-задачи классификации с первой метрикой качества." },
+          { lesson: 22, task: "5", group: "baseline", y: 4, name: "Baseline", fragment: "Обучите DummyClassifier(strategy='most_frequent') на train. Посчитайте dummy_acc на validation. Найдите самый частый класс в train и его долю.", reason: "Полностью задана baseline-модель, метрика, выборка и объект сравнения.", check: "Baseline как точка отсчета и accuracy на validation." },
+          { lesson: 22, task: "9", group: "metric", y: 4, name: "Confusion matrix и recall", fragment: "Посчитайте confusion_matrix с фиксированным порядком классов... Посчитайте recall по классам (average=None) и отдельно recall_dragon.", reason: "Новая диагностическая метрика вводится с полным рецептом.", check: "Переход от общей accuracy к ошибкам по классам." },
+          { lesson: 24, task: "6", group: "baseline", y: 4, name: "Baseline-набор и kNN", fragment: "Pipeline... KNeighborsRegressor(n_neighbors=5). Обучите pipeline на train и посчитайте MAE на validation, сохранив результат в mae_base.", reason: "Новая регрессионная метрика и baseline снова задаются подробно.", check: "MAE как точка отсчета для feature engineering." },
+          { lesson: 24, task: "7", group: "decision", y: 3, name: "Добавляем группы признаков", fragment: "Для каждой группы соберите набор... измерьте MAE на validation. Результат оформите таблицей «набор признаков -> MAE».", reason: "Метрика и формат сравнения заданы, но повторный эксперимент ученик организует сам.", check: "Выбор признаков по validation MAE." },
+          { lesson: 26, task: "3", group: "baseline", y: 3, name: "Первый baseline", fragment: "Baseline — это первая простая модель... посчитана MAE на validation... результат baseline сохранён как точка отсчёта.", reason: "Baseline уже знаком: точный рецепт модели не прописан, но критерии результата ясные.", check: "Сохранение baseline для дальнейшего сравнения." },
+          { lesson: 26, task: "4", group: "decision", y: 2, name: "Идеи для улучшения", fragment: "Попробуйте 2-4 идеи и сравнивайте их только по validation... проверить, не стала ли модель лучше на MAE, но хуже на RMSE.", reason: "Задание задает экспериментальный протокол, а конкретные сравнения и выводы собирает ученик.", check: "Сравнение идей по MAE и контроль RMSE." },
+          { lesson: 28, task: "2", group: "metric", y: 3, name: "Вероятность -> класс", fragment: "Получены вероятности класса 1 на validation. Порог 0.5 применён для получения классов. Посчитаны F1 и дополнительные метрики на validation.", reason: "Новая classification metric family вводится направленно.", check: "F1 как метрика для дисбаланса и порогового решения." },
+          { lesson: 28, task: "3", group: "decision", y: 2, name: "Подбор порога", fragment: "Перебран диапазон порогов на validation... для каждого порога посчитаны F1 и связанные метрики... найден best_threshold.", reason: "Метрика ведет выбор, но диапазон и таблицу перебора ученик оформляет сам.", check: "Decision threshold как объект оптимизации по F1." },
+          { lesson: 30, task: "1", group: "metric", y: 4, name: "Validation curve", fragment: "Для степеней полинома 1-15... посчитайте MSE на train и validation. Постройте график «степень -> MSE».", reason: "Новый диагностический формат метрик снова получает полный рецепт.", check: "Train/validation MSE как диагностика сложности модели." },
+          { lesson: 30, task: "2", group: "decision", y: 3, name: "Диагноз переобучения", fragment: "Найдите степень полинома с минимальным validation MSE... выведите train MSE и validation MSE... объясните признаки недообучения и переобучения.", reason: "Критерий выбора дан, а вывод требует интерпретации метрик.", check: "Диагностика по разрыву train/validation MSE." },
+          { lesson: 32, task: "1", group: "metric", y: 3, name: "Глубина и переобучение", fragment: "Для каждой модели посчитайте accuracy на train и на validation. Соберите результаты в таблицу.", reason: "Метрики и таблица заданы, но сравнение моделей выполняется как знакомый шаблон.", check: "Train/validation accuracy для контроля сложности дерева." },
+          { lesson: 34, task: "3", group: "metric", y: 3, name: "OOB-оценка", fragment: "Выведите OOB-оценку и accuracy на validation, затем сравните их.", reason: "Новый тип оценки объясняется явно, но сравнение строится на знакомой validation-логике.", check: "Связь OOB с внешней validation-оценкой." },
+          { lesson: 36, task: "1", group: "baseline", y: 4, name: "Baseline и метрики", fragment: "Обучите DummyRegressor(strategy='mean') на train... Посчитайте MAE, RMSE и R2 на validation и сохраните результат в baseline_metrics.", reason: "В финальном блоке набор регрессионных метрик и baseline снова формулируются полностью.", check: "Единая baseline-строка для сравнения бустингов." },
+          { lesson: 36, task: "6", group: "decision", y: 2, name: "Единый рейтинг моделей", fragment: "Соберите результаты baseline, sklearn-моделей и внешних библиотек в один DataFrame all_results. Отсортируйте таблицу по validation RMSE.", reason: "Метрика ранжирования названа, но агрегацию результатов ученик собирает сам.", check: "Модельный рейтинг по validation RMSE." },
+          { lesson: 36, task: "8", group: "decision", y: 1, name: "Финальный инженерный вывод", fragment: "Какая модель лучшая по validation; насколько она лучше baseline по validation RMSE/MAE; какую модель вы бы выбрали для финальной проверки на test.", reason: "Метрики становятся аргументами в инженерном выборе.", check: "Итоговое решение по качеству, baseline improvement, скорости и рискам." }
+        ],
+        support: [
+          { lesson: 22, task: "2", group: "adjacent", y: 4, name: "Импорты метрик", fragment: "Подключите импорты: accuracy_score, recall_score, confusion_matrix...", reason: "Метрики еще не используются для решения, но инструменты качества вводятся явно.", check: "Подготовка к accuracy, recall и confusion matrix." },
+          { lesson: 22, task: "6", group: "metric", y: 4, name: "kNN vs baseline", fragment: "Names KNeighborsClassifier(n_neighbors=5), acc_raw, bar chart, and condition acc_raw > dummy_acc.", reason: "Прямое сравнение с baseline сделано полностью рецептурным.", check: "Первый модельный результат против baseline." },
+          { lesson: 22, task: "7", group: "metric", y: 4, name: "Масштабирование и kNN", fragment: "Посчитайте acc_scaled на validation. Постройте bar acc_raw vs acc_scaled.", reason: "Метрика, переменная результата и сравнение с предыдущей моделью заданы явно.", check: "Сравнение качества до и после preprocessing." },
+          { lesson: 22, task: "10", group: "decision", y: 3, name: "Финальная проверка на test", fragment: "Посчитайте test_acc на X_test_s после выбора best_k.", reason: "Финальная метрика названа, но встроена в ритуал после выбора модели.", check: "Test как один финальный контроль." },
+          { lesson: 24, task: "8", group: "decision", y: 3, name: "Combined feature set", fragment: "Requires final feature set based on previous MAE comparison and comparison with mae_base.", reason: "Ученик использует metric evidence для выбора признаков.", check: "Выбор финального набора признаков." },
+          { lesson: 24, task: "9", group: "decision", y: 2, name: "Итог по MAE", fragment: "Перечислите группы признаков, которые улучшили MAE, и группы, которые не дали улучшения.", reason: "Требуется вывод по metric evidence, но без нового расчета.", check: "Синтез результатов feature comparison." },
+          { lesson: 26, task: "5", group: "decision", y: 1, name: "Финальное обучение", fragment: "Когда выбрали признаки и модель, обучите её на всём train.csv, затем сделайте прогноз для test.csv.", reason: "Метрика уже использована ранее; здесь ожидается применение выбранной версии.", check: "Downstream use выбранной модели." },
+          { lesson: 28, task: "4", group: "decision", y: 2, name: "Идеи для улучшения", fragment: "Попробуйте несколько вариантов и сравнивайте их на validation... сравнение идей выполнено по F1.", reason: "Метрика выбора названа, но набор экспериментов ученик собирает сам.", check: "Улучшение модели по validation F1." },
+          { lesson: 28, task: "5", group: "decision", y: 1, name: "Финальное обучение", fragment: "После выбора модели обучаем её на всём train.csv... применён выбранный best_threshold.", reason: "F1 уже использована для выбора порога; здесь это финальная процедура.", check: "Перенос выбранного threshold в submission." },
+          { lesson: 30, task: "3", group: "metric", y: 4, name: "Learning curve", fragment: "learning_curve, 5-fold CV, neg_mean_squared_error... чтобы получить обычный MSE, умножьте на -1.", reason: "Новый график качества и особенность знака метрики объясняются детально.", check: "Learning curve и корректная обработка sklearn scoring." },
+          { lesson: 30, task: "4", group: "metric", y: 3, name: "K-fold CV", fragment: "cross_validate с 5-fold... test_score означает fold-validation.", reason: "Инструмент назван, терминологическая ловушка подсвечена явно.", check: "CV-метрика и сравнение с holdout validation." },
+          { lesson: 30, task: "7", group: "metric", y: 3, name: "Выбранная модель", fragment: "Обучите выбранную модель: best_degree, fit poly на train, оцените MSE на validation ещё раз.", reason: "Подтверждающая проверка выбранной модели по знакомой метрике.", check: "Consistency check после выбора best_degree." },
+          { lesson: 30, task: "8", group: "decision", y: 2, name: "Итог по curves", fragment: "Сформулируйте три коротких вывода про validation curve и learning curve.", reason: "Задание требует синтеза по метрикам, а не нового расчета.", check: "Интерпретация графиков качества." },
+          { lesson: 32, task: "2", group: "decision", y: 3, name: "Tune max_depth", fragment: "Choose best depth by validation accuracy.", reason: "Короткая familiar metric-driven selection.", check: "Выбор max_depth по validation accuracy." },
+          { lesson: 32, task: "4", group: "decision", y: 3, name: "min_samples_leaf", fragment: "Попробуйте значения [1, 5, 15]... посчитайте validation accuracy.", reason: "Параметры и метрика заданы, эксперимент оформляется учеником.", check: "Выбор ограничения дерева." },
+          { lesson: 32, task: "5", group: "decision", y: 3, name: "ccp_alpha", fragment: "ccp_alpha in [0, 0.005, 0.02, 0.08]... посчитана validation accuracy.", reason: "Список параметров задан, вывод о pruning строится по качеству.", check: "Оценка pruning через validation accuracy." },
+          { lesson: 32, task: "6", group: "metric", y: 3, name: "Confusion matrix", fragment: "Матрица ошибок лучшего дерева на validation.", reason: "Диагностическая метрика уже знакома, поэтому формулировка короткая.", check: "Повтор confusion matrix на новой модели." },
+          { lesson: 34, task: "1", group: "metric", y: 3, name: "Three models", fragment: "Compare train/validation accuracy for tree, bagging, and random forest.", reason: "Модельные семьи сравниваются в одном metric protocol.", check: "Сравнение моделей под одной метрикой." },
+          { lesson: 34, task: "2", group: "decision", y: 3, name: "n_estimators", fragment: "Измерьте validation accuracy для [1, 5, 20, 60, 150, 300]. Постройте график.", reason: "Даны значения, метрика и график; вывод о плато делает ученик.", check: "Diminishing returns по validation accuracy." },
+          { lesson: 34, task: "4", group: "decision", y: 3, name: "max_depth", fragment: "Проверьте max_depth [None, 5, 10, 20]. Выберите лучший вариант по validation accuracy.", reason: "Критерий выбора явный, процедура уже повторная.", check: "Выбор глубины леса." },
+          { lesson: 34, task: "6", group: "metric", y: 3, name: "Permutation importance", fragment: "Посчитайте permutation importance на validation: перемешиваем признак и смотрим, насколько падает качество.", reason: "Метрика качества используется как диагностический инструмент.", check: "Quality drop на validation как мера важности." },
+          { lesson: 34, task: "7", group: "decision", y: 2, name: "Train-validation gap", fragment: "Почему высокий train accuracy сам по себе ещё не доказывает переобучение?", reason: "Требуется рассуждение по метрикам, а не вычисление.", check: "Диагностика переобучения." },
+          { lesson: 34, task: "8", group: "decision", y: 2, name: "Итог по ансамблям", fragment: "Связать формулировки с результатами практики: качеством дерева, bagging и random forest на validation.", reason: "Итоговое объяснение опирается на metric evidence.", check: "Синтез сравнения моделей." },
+          { lesson: 36, task: "2", group: "baseline", y: 3, name: "GBDT vs baseline", fragment: "Посчитайте те же метрики, что и для baseline: MAE, RMSE и R2. Соберите сравнение с baseline.", reason: "Метрики названы; таблицу сравнения ученик собирает сам.", check: "Model improvement над baseline." },
+          { lesson: 36, task: "3", group: "metric", y: 3, name: "GridSearchCV metric", fragment: "Используйте scoring='neg_mean_absolute_error'... CV-метрика и качество лучшей модели на validation.", reason: "Метрика и CV-инструмент названы, сетка и оформление остаются за учеником.", check: "CV metric плюс validation check." },
+          { lesson: 36, task: "4", group: "decision", y: 3, name: "HistGBDT tradeoff", fragment: "Замерьте время обучения, посчитайте метрики на validation и сравните с лучшей моделью из задания 3.", reason: "Качество объединяется со скоростью.", check: "Tradeoff quality vs training time." },
+          { lesson: 36, task: "5", group: "metric", y: 3, name: "External libraries", fragment: "Для каждой модели посчитайте MAE, RMSE и R2 на validation и соберите external_results.", reason: "Метрики и таблица названы, но workflow шире.", check: "Единое сравнение XGBoost, LightGBM и CatBoost." },
+          { lesson: 36, task: "7", group: "adjacent", y: 1, name: "Плюсы и минусы библиотек", fragment: "Формулировки слишком общие и не связаны с качеством, скоростью, устойчивостью или поддержкой.", reason: "Метрики напрямую не считаются, но качество становится частью инженерного анализа.", check: "Связь качества с эксплуатационным выбором." }
+        ]
+      }
+    };
+
+    const overviewDefinitions = {
+      workflow: ["ML workflow", "Сквозной ML-процесс от постановки задачи до внедрения."],
+      "train-split": ["Train / validation / test", "Роли выборок и финальный протокол проверки модели."],
+      cv: ["Cross-validation", "Holdout, K-fold, learning/validation curves и корректный preprocessing внутри fold."],
+      leakage: ["Data leakage", "Риск утечки данных: признаки из будущего, preprocessing и CV."],
+      features: ["Feature engineering", "Создание, проверка, стоимость и переносимость признаков."],
+      missing: ["Пропуски", "Заполнение пропусков, индикаторы и модельная поддержка missing values."],
+      categorical: ["Категориальные признаки", "One-hot, ordinal encoding, редкие и неизвестные категории."],
+      outliers: ["Выбросы", "Ограничение выбросов, робастность и влияние на модели."],
+      multicollinearity: ["Мультиколлинеарность", "Похожие признаки и устойчивость линейных моделей."],
+      scaling: ["Масштабирование", "Когда нужен StandardScaler и почему fit делается только на train."],
+      imbalance: ["Дисбаланс классов", "Порог, class_weight и выбор метрик при редком положительном классе."],
+      models: ["Модельные семейства", "kNN, линейные модели, деревья, леса и бустинг как одна линия усложнения."],
+      regularization: ["Регуляризация", "Ridge/Lasso, C, pruning и другие ограничения сложности."],
+      hyperparams: ["Гиперпараметры", "Подбор k, grid search, параметры леса, learning rate и early stopping."],
+      overfitting: ["Переобучение", "Недообучение, переобучение, bias-variance и train/validation gap."],
+      importance: ["Feature importance", "Интерпретация важности признаков в линейных моделях, деревьях и ансамблях."]
+    };
+
+    const overviewPlacements = {
+      "workflow:25": ["Типы ML-задач", "Сквозной цикл ML-проекта", "От бизнес-вопроса к ML-задаче", "Критерий успеха и метрика", "Единица наблюдения", "Confusion matrix", "Разбор ошибок", "Чек-лист эксперимента"],
+      "workflow:27": ["Чек-лист конструирования признаков"],
+      "workflow:29": ["Алгоритм работы над задачей регрессии"],
+      "workflow:31": ["Порядок работы с задачей классификации"],
+      "workflow:39": ["Эксплуатация и мониторинг", "Анализ ошибок бустинга", "Чек-лист настройки бустинга"],
+      "train-split:25": ["Train / validation / test в workflow", "Финальный test и внедрение модели"],
+      "train-split:29": ["Train / validation / test для регрессии"],
+      "train-split:31": ["Train / validation / test для логрег", "Первый честный test"],
+      "train-split:33": ["Роли train / validation / test", "Fit на train+val, оценка на test"],
+      "cv:25": ["Разбиение с учётом независимости объектов", "Одинаковый протокол сравнения моделей"],
+      "cv:33": ["Holdout vs повторная проверка", "Validation curve", "Learning curve", "K-fold CV", "Стратификация в CV", "Group/time split", "Preprocessing внутри fold", "Nested CV"],
+      "cv:39": ["Когда внутренняя validation неверна"],
+      "leakage:25": ["Утечка данных — признаки из будущего"],
+      "leakage:27": ["Агрегаты по прошлым событиям", "Утечка через агрегаты и target encoding"],
+      "leakage:33": ["Типичные утечки внутри cross-validation"],
+      "features:25": ["Инжиниринг признаков в workflow"],
+      "features:27": ["Критерии хорошего признака", "Отношения и log1p", "Полиномиальные признаки", "Взаимодействия", "Даты и цикличность", "Recency", "Отбор признаков", "Стоимость признака"],
+      "features:29": ["Кривые через полиномиальные признаки"],
+      "features:39": ["Нужна ли предобработка для бустинга"],
+      "missing:27": ["Заполнение пропусков", "Индикатор пропуска", "Почему появляются пропуски"],
+      "missing:35": ["Пропуски в DecisionTree"],
+      "categorical:27": ["One-hot encoding", "Ordinal encoding", "Редкие и неизвестные категории"],
+      "categorical:35": ["Кодирование категорий для дерева"],
+      "outliers:27": ["Интервалы и ограничение выбросов"],
+      "outliers:29": ["Выбросы и робастная регрессия"],
+      "multicollinearity:29": ["Мультиколлинеарность похожих признаков"],
+      "scaling:25": ["StandardScaler: fit на train, transform везде"],
+      "scaling:27": ["Масштабирование StandardScaler"],
+      "scaling:29": ["Масштабирование перед Ridge / Lasso"],
+      "scaling:31": ["Зачем масштабировать перед L1/L2"],
+      "scaling:35": ["Нужно ли масштабировать признаки для дерева"],
+      "imbalance:31": ["Порог вероятности", "class_weight", "Метрика при дисбалансе", "FN и FP при смене порога"],
+      "imbalance:37": ["class_weight в Random Forest", "Порог вероятности", "Метрики при дисбалансе"],
+      "models:25": ["kNN", "kNN на масштабированных данных"],
+      "models:29": ["Supervised/unsupervised", "Регрессия", "Линейная регрессия", "Подбор коэффициентов", "Переобучение линейной модели", "Множественная регрессия"],
+      "models:31": ["Бинарная классификация", "Классы и вероятности", "Сигмоида", "LogisticRegression", "Линейная граница", "Многоклассовость", "Ограничения интерпретации"],
+      "models:35": ["Устройство дерева", "Рекурсивное построение", "Порог признака", "Энтропия", "Прогноз в листе", "Вероятность класса", "Ступенчатая граница", "Осевая граница", "Ограничения дерева"],
+      "models:37": ["Bootstrap", "Уникальные объекты", "Bagging", "Random Forest", "Лес для классификации и регрессии", "Extra Trees", "Ограничения леса"],
+      "models:39": ["Boosting", "Шаги бустинга", "Градиентный бустинг", "Слабые деревья", "Бустинг для классификации", "Вероятности", "Bagging vs boosting", "RF vs boosting", "Ограничения", "Реализации"],
+      "regularization:29": ["Ridge, Lasso, ElasticNet"],
+      "regularization:31": ["Параметр C и сила регуляризации"],
+      "regularization:35": ["Ограничение глубины и ccp_alpha"],
+      "hyperparams:25": ["Подбор k по validation"],
+      "hyperparams:33": ["Параметры модели vs гиперпараметры", "Grid search"],
+      "hyperparams:37": ["Гиперпараметры random forest", "Что настраивать в лесу первым"],
+      "hyperparams:39": ["Learning rate и число деревьев", "Early stopping"],
+      "overfitting:29": ["Когда прямая не описывает данные"],
+      "overfitting:31": ["Когда линейной границы недостаточно"],
+      "overfitting:33": ["Недо-, пере- и хорошее обобщение", "Причины переобучения", "Bias-variance", "Переобучение на validation"],
+      "overfitting:35": ["Переобучение глубокого дерева", "Нестабильность дерева"],
+      "overfitting:39": ["Переобучение при добавлении деревьев"],
+      "importance:31": ["Интерпретация коэффициентов логрег"],
+      "importance:35": ["Impurity importance в дереве", "Permutation importance"],
+      "importance:37": ["Impurity importance в лесу", "Permutation importance на validation"],
+      "importance:39": ["Impurity vs permutation importance"]
+    };
+
+    Object.entries(overviewPlacements).forEach(([rawKey, topics]) => {
+      const [key, position] = rawKey.split(":");
+      if (!overviewDefinitions[key]) return;
+      const lesson = Number(position) - 3;
+      const definition = overviewDefinitions[key];
+      if (!abstractions[key]) {
+        abstractions[key] = {
+          title: definition[0],
+          short: definition[0],
+          description: `${definition[1]} Это обзор из concept map; для точного F-аудита нужны фрагменты практических заданий.`,
+          groups: ["all", "overview"],
+          points: [],
+          support: []
+        };
+      }
+      const count = abstractions[key].points.length;
+      const y = Math.max(1, 4 - count);
+      abstractions[key].points.push({
+        lesson,
+        task: String(count + 1),
+        group: "overview",
+        y,
+        name: `Темы урока ${lesson}`,
+        fragment: topics.join("; "),
+        reason: count === 0
+          ? "Первое обзорное появление ветки в concept map: в будущем ручном аудите это место стоит проверить как ввод с высокой поддержкой."
+          : "Повторное появление ветки: в будущем ручном аудите можно смотреть, снижается ли явность формулировок и растет ли перенос.",
+        check: `${topics.length} тем(ы) в concept map. Источник: canvases/ml-theory-concepts-map.canvas.data.json, placements-v2.`
+      });
+      topics.forEach((topic, topicIndex) => {
+        abstractions[key].support.push({
+          lesson,
+          task: `${count + 1}.${topicIndex + 1}`,
+          group: "overview",
+          y: Math.max(0, 4 - (topicIndex % 5)),
+          name: topic,
+          fragment: topic,
+          reason: "Это отдельное вхождение внутри обзорной точки урока. В обзорных ветках вертикальная позиция используется как полка для чтения тем внутри урока, а не как ручной F-аудит формулировки.",
+          check: `Тема ${topicIndex + 1} из ${topics.length} для абстракции “${definition[0]}”.`
+        });
+      });
+    });
+
+    Object.values(abstractions).forEach((abstraction) => {
+      abstraction.points.forEach((point) => { point.anchor = true; });
+      abstraction.support.forEach((point) => { point.anchor = false; });
+    });
+
+    let currentKey = "validation";
+    let currentScope = "all";
+    let currentGroup = "all";
+    let selectedId = null;
+
+    const abstractionButtons = document.getElementById("abstraction-buttons");
+    const groupButtons = document.getElementById("group-buttons");
+    const matrixHead = document.getElementById("matrix-head");
+    const matrix = document.getElementById("matrix");
+    const legend = document.getElementById("legend");
+
+    function colorForLevel(y) {
+      return { 4: "#246bfe", 3: "#16855b", 2: "#c76b11", 1: "#c7353f", 0: "#6f4bd8" }[y];
+    }
+
+    function pointId(point) {
+      return `${currentKey}-${point.lesson}-${point.task}-${point.name}`;
+    }
+
+    function currentPoints() {
+      const a = abstractions[currentKey];
+      const base = currentScope === "all" ? a.points.concat(a.support) : a.points;
+      return base
+        .filter((point) => currentGroup === "all" || point.group === currentGroup)
+        .sort((a, b) => lessons.indexOf(a.lesson) - lessons.indexOf(b.lesson) || b.y - a.y || String(a.task).localeCompare(String(b.task), "ru", { numeric: true }));
+    }
+
+    function renderAbstractionButtons() {
+      abstractionButtons.innerHTML = "";
+      Object.entries(abstractions).forEach(([key, value]) => {
+        const button = document.createElement("button");
+        button.textContent = value.short;
+        button.className = key === currentKey ? "active" : "";
+        button.addEventListener("click", () => {
+          currentKey = key;
+          currentGroup = "all";
+          selectedId = null;
+          render();
+        });
+        abstractionButtons.appendChild(button);
+      });
+    }
+
+    function renderGroupButtons() {
+      groupButtons.innerHTML = "";
+      abstractions[currentKey].groups.forEach((group) => {
+        const button = document.createElement("button");
+        button.textContent = groupNames[group];
+        button.className = group === currentGroup ? "active" : "";
+        button.addEventListener("click", () => {
+          currentGroup = group;
+          selectedId = null;
+          render();
+        });
+        groupButtons.appendChild(button);
+      });
+    }
+
+    function renderHead() {
+      matrixHead.innerHTML = '<div class="corner">Уровень формулировки</div>';
+      lessons.forEach((lesson) => {
+        const count = currentPoints().filter((point) => point.lesson === lesson).length;
+        matrixHead.insertAdjacentHTML("beforeend", `<div class="lesson">Урок ${lesson}<span>${count ? `${count} задач` : "нет"}</span></div>`);
+      });
+    }
+
+    function renderMatrix() {
+      const visible = currentPoints();
+      matrix.innerHTML = "";
+      levels.forEach((level) => {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.insertAdjacentHTML("beforeend", `<div class="level-cell"><span class="level-code" style="background:${colorForLevel(level.y)}">${level.code}</span><span class="level-title">${level.title}</span><span class="level-hint">${level.hint}</span></div>`);
+        lessons.forEach((lesson) => {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          const cellPoints = visible
+            .filter((point) => point.lesson === lesson && point.y === level.y)
+            .sort((a, b) => String(a.task).localeCompare(String(b.task), "ru", { numeric: true }));
+          if (!cellPoints.length) {
+            cell.innerHTML = '<span class="empty">-</span>';
+          } else {
+            cellPoints.forEach((point) => {
+              const task = document.createElement("button");
+              task.className = `task ${groupColors[point.group]}${point.anchor ? "" : " support"}${pointId(point) === selectedId ? " selected" : ""}`;
+              task.textContent = point.task;
+              task.title = point.fragment;
+              task.addEventListener("click", () => {
+                selectedId = pointId(point);
+                updateDetail(point);
+                renderMatrix();
+              });
+              cell.appendChild(task);
+            });
+          }
+          row.appendChild(cell);
+        });
+        matrix.appendChild(row);
+      });
+    }
+
+    function updateStats() {
+      const visible = currentPoints();
+      const visibleLessons = [...new Set(visible.map((point) => point.lesson))];
+      document.getElementById("stat-count").textContent = visible.length;
+      document.getElementById("stat-lessons").textContent = visibleLessons.length;
+      document.getElementById("stat-first").textContent = visibleLessons.length ? Math.min(...visibleLessons) : "-";
+      document.getElementById("stat-last").textContent = visibleLessons.length ? Math.max(...visibleLessons) : "-";
+    }
+
+    function updateDetail(point) {
+      const abstraction = abstractions[currentKey];
+      document.getElementById("detail-title").textContent = `${point.task}. ${point.name}`;
+      document.getElementById("detail-lesson").textContent = `Урок ${point.lesson}`;
+      document.getElementById("detail-level").textContent = levels.find((level) => level.y === point.y).code;
+      document.getElementById("detail-group").textContent = groupNames[point.group];
+      document.getElementById("detail-fragment").textContent = point.fragment;
+      document.getElementById("detail-reason").textContent = point.reason;
+      document.getElementById("detail-check").textContent = `${abstraction.short}: ${point.check}`;
+    }
+
+    function renderLegend() {
+      const groups = abstractions[currentKey].groups.filter((group) => group !== "all");
+      legend.innerHTML = groups.map((group) => `<span><i class="${groupColors[group]}"></i>${groupNames[group]}</span>`).join("") + '<span><i style="background:#eef2f8;border:1px solid #cfd7e6"></i>дополнительное вхождение в режиме “Все”</span>';
+    }
+
+    function render() {
+      document.querySelector(".subtitle").textContent = abstractions[currentKey].description;
+      document.querySelectorAll("[data-scope]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.scope === currentScope);
+      });
+      renderAbstractionButtons();
+      renderGroupButtons();
+      renderHead();
+      renderMatrix();
+      renderLegend();
+      updateStats();
+      const first = currentPoints()[0] || null;
+      if (first) {
+        selectedId = pointId(first);
+        updateDetail(first);
+        renderMatrix();
+      }
+    }
+
+    document.querySelectorAll("[data-scope]").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentScope = button.dataset.scope;
+        selectedId = null;
+        render();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
