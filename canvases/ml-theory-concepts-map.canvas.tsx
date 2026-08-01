@@ -246,10 +246,10 @@ const LABEL_SPLIT: Record<string, string[]> = {
   ],
   "Baseline и дисбаланс классов": [
     "Baseline для классификации",
-    "Дисбаланс классов и выбор метрики",
+    "Дисбаланс классов: почему accuracy обманывает",
   ],
   "Калибровка и ограничения вероятностей": [
-    "Ограничения интерпретации и экстраполяции",
+    "Границы, за которые нельзя выходить",
     "Калибровка вероятностей",
   ],
   "Пропуски и категории в решающем дереве": [
@@ -406,6 +406,16 @@ const LABEL_RENAME: Record<string, string> = {
   "Отбор и проверка новых признаков": "Проверка признака на validation",
   "Стоимость признака в продакшене": "Стоимость признака и чек-лист",
   "Чек-лист конструирования признаков": "Стоимость признака и чек-лист",
+  "Константный baseline и коэффициент R²":
+    "Насколько мы лучше самого простого прогноза: R²",
+  "Log loss и градиентная оптимизация":
+    "Как обучается модель: функция потерь",
+  "Дисбаланс классов и выбор метрики":
+    "Дисбаланс классов: почему accuracy обманывает",
+  "Несколько признаков и линейная граница":
+    "Граница решений при нескольких признаках",
+  "Ограничения интерпретации и экстраполяции":
+    "Границы, за которые нельзя выходить",
 };
 
 function migrateConceptLabels(placements: Placements): Placements {
@@ -438,6 +448,7 @@ const ROW_SPLIT_TARGET: Record<string, string> = {
   "Learning rate и число деревьев в бустинге": "hyperparams",
   "Early stopping и post-hoc выбор числа деревьев": "hyperparams",
   "Baseline для классификации": "metrics",
+  "Дисбаланс классов: почему accuracy обманывает": "imbalance",
   "Дисбаланс классов и выбор метрики": "imbalance",
   "Порог вероятности и итоговый класс": "imbalance",
   "Взвешивание классов (class_weight)": "imbalance",
@@ -596,7 +607,7 @@ const LESSONS: Lesson[] = [
       { label: "Остатки и функция потерь MSE" },
       { label: "Подбор коэффициентов (прямое решение / градиентный спуск)" },
       { label: "Метрики MAE, MSE и RMSE" },
-      { label: "Константный baseline и коэффициент R²" },
+      { label: "Насколько мы лучше самого простого прогноза: R²" },
       { label: "Train / validation / test для регрессии" },
       { label: "Когда линейная модель переобучается" },
       { label: "Множественная линейная регрессия" },
@@ -618,24 +629,24 @@ const LESSONS: Lesson[] = [
       { label: "Сигмоида: из признаков в вероятность класса 1" },
       { label: "Порог вероятности и итоговый класс" },
       { label: "LogisticRegression в sklearn" },
-      { label: "Log loss и градиентная оптимизация" },
+      { label: "Как обучается модель: функция потерь" },
       { label: "Учебный пример с двумя признаками" },
       { label: "Train / validation / test для логрег" },
       { label: "Матрица ошибок (TP, FN, FP, TN)" },
       { label: "Precision, recall, F1 и выбор метрики" },
       { label: "Baseline для классификации" },
-      { label: "Дисбаланс классов и выбор метрики" },
+      { label: "Дисбаланс классов: почему accuracy обманывает" },
       { label: "Как смена порога меняет FN и FP" },
       { label: "Первый честный test" },
       { label: "ROC-кривая и PR-кривая" },
-      { label: "Несколько признаков и линейная граница" },
+      { label: "Граница решений при нескольких признаках" },
       { label: "Интерпретация коэффициентов логрег" },
       { label: "Зачем масштабировать перед L1/L2" },
       { label: "Параметр C и сила регуляризации" },
       { label: "Взвешивание классов (class_weight)" },
       { label: "Многоклассовая классификация (OvR / OvO)" },
       { label: "Когда линейной границы недостаточно" },
-      { label: "Ограничения интерпретации и экстраполяции" },
+      { label: "Границы, за которые нельзя выходить" },
       { label: "Калибровка вероятностей" },
       { label: "Порядок работы с задачей классификации" },
     ],
@@ -974,7 +985,7 @@ function buildUnifiedTableRows(
 
 export default function MlTheoryConceptsMap() {
   const { text, fill, accent } = useHostTheme();
-  const [labelSplitDone, setLabelSplitDone] = useCanvasState("label-split-v6", false);
+  const [labelSplitDone, setLabelSplitDone] = useCanvasState("label-split-v7", false);
   const [rowSplitDone, setRowSplitDone] = useCanvasState("row-split-v4", false);
   const [placements, setPlacements] = useCanvasState(
     "placements-v2",
