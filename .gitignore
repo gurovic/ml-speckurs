@@ -6,6 +6,7 @@ __pycache__/
 venv/
 .codex_competition_pydeps/
 .codex_paramiko/
+.codex_mpl_cache/
 catboost_info/
 *_hand_solution.ipynb
 *.egg-info/
