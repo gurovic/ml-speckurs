@@ -2,7 +2,7 @@
 
 Подставь `{topic}`, `{NN}` (номер папки), `{N}` (= NN×2−1), `{следующий урок}` (практика), пути к файлам и модель.
 
-**Нумерация:** теория и упражнения — **N = NN × 2 − 1**; практика — **N + 1**.
+**Нумерация:** теория и `Тест_к_теории` — **N = NN × 2 − 1**; практика — **N + 1**.
 
 ---
 
@@ -17,9 +17,9 @@
 
 Сделай:
 1. LESSON_BRIEF.md по brief-template.md
-2. LESSON_OUTLINE.md: п. 1–N теории, 10–12 заданий практики с минутами, 12–15 упражнений; номера занятий: теория и упражнения — N, практика — следующий урок
+2. LESSON_OUTLINE.md: п. 1–N теории; 10–12 заданий практики; core must-know + 10–12 вопросов `Тест_к_теории` (типы); теория и тест — N, практика — следующий урок
 3. Выбери сквозную модель и датасет; обоснуй
-4. Проверь порядок введения терминов (train/val/test до split, метрики до baseline, pos_label до confusion matrix)
+4. Проверь порядок введения терминов (train/val/test до split, метрики до baseline, pos_label до confusion matrix); тест — только core, не */optional
 
 Не пиши полные тексты ноутбуков — только план.
 ```
@@ -50,18 +50,24 @@
 
 ---
 
-## 3. Exercises Author
+## 3. Theory Test Author (`Тест_к_теории`)
 
 ```
-Skill: ml-lesson-workflow, фаза Exercises Author.
+Skill: ml-lesson-workflow, фаза Theory Test Author.
+Полный стандарт: .cursor/skills/ml-lesson-workflow/theory-tests.md
 
-Вход: {topic}_theory.ipynb + LESSON_OUTLINE.md
-Выход: {topic}_exercises.ipynb
+Вход: теория занятия N + LESSON_OUTLINE.md (core must-know)
+Выход: Урок_N_…_Теория/Тест_к_теории.ipynb
 
-Формат: import в начале; variable = ...; assert; print('Верно')
-12–15 задач + 2–3 по сквозной модели (ссылки на п. теории: scaling, pos_label)
-Ссылка на практику: занятие следующий урок (теория — N)
-Без полного пайплайна — это практика.
+Обязательно:
+1) Сначала список core must-know; каждый вопрос только по core (не */optional/advanced/мелочи).
+2) Микс типов: MCQ, matching, короткий ввод, compute/coding+assert, вопросы по картинкам (base64 в markdown); умеренно — порядок / верно-неверно.
+3) Дистракторы ≈ правильный по длине/стилю; типичные ошибки.
+4) Заголовки без спойлеров ответа.
+5) Compute: смысл теории, не тривиальная арифметика / не голое .fit().score().
+6) Картинки: data:image/png;base64,... ; не файловые ссылки.
+7) ~10–12 задач; ~8 класс; UTF-8; LMS-поля Тип/Задание/Правильный ответ.
+Не создавать {topic}_exercises.ipynb.
 ```
 
 ---
@@ -74,7 +80,7 @@ Skill: ml-lesson-workflow, фаза Practice Author.
 Вход: {topic}_theory.ipynb + LESSON_OUTLINE.md
 Выход: {topic}_practice.ipynb (~90 мин)
 
-Заголовок: Занятие следующий урок (если теория — N). Упражнения — тот же N; ссылки согласованы.
+Заголовок: Занятие следующий урок (если теория — N). Тест к теории — тот же N; ссылки согласованы.
 Студент пишет ВЕСЬ код: пустые code-ячейки, без ...
 «Дано» — только загрузка данных
 Задания 0–9: шаги, критерий, ссылка на п. теории (п. / пп., не §)
@@ -183,7 +189,7 @@ Skill: ml-lesson-workflow, фаза Student Reader.
 ```
 Разработай урок по теме {topic} в {NN_topic}/ по skill ml-lesson-workflow.
 
-Пройди все фазы: Brief → Architect → Theory → Exercises + Practice + Solution → Tech Review → Methodology Review → Philologist Review → Student Reader → Final Editor.
+Пройди все фазы: Brief → Architect → Theory → Theory Test (`Тест_к_теории`) + Practice + Solution → Tech Review → Methodology Review → Philologist Review → Student Reader → Final Editor.
 
 Ограничения из brief-template и skill. plan.md не трогать.
 Если ноутбук уже отредактирован вручную (# TODO) — правь точечно, не перегенерируй целиком.
