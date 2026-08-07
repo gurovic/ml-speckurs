@@ -8,7 +8,6 @@ venv/
 .codex_paramiko/
 .codex_mpl_cache/
 catboost_info/
-*_hand_solution.ipynb
 *.egg-info/
 .DS_Store
 Thumbs.db
