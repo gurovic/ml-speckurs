@@ -1,6 +1,6 @@
 | Занятие                                   | Теория             | Тест               | Практика/соревнование |
 | ----------------------------------------- | ------------------ | ------------------ | --------------------- |
-| Урок 21. ML workflow и kNN                | Залито в DS-course | Залито в DS-course | —                     |
+| Урок 21. ML workflow и kNN                | Залито в DS-course | FINAL              | —                     |
 | Урок 22. ML workflow и kNN                | —                  | —                  | Залито в DS-course    |
 | Урок 23. Feature Engineering              | Залито в DS-course | Залито в DS-course | —                     |
 | Урок 24. Feature Engineering              | —                  | —                  | ПЕРВАЯ ВЕРСИЯ         |
