@@ -6,15 +6,14 @@
 | Урок 24. Feature Engineering              | —                  | —                  | FINISHED                 |
 | Урок 25. Линейная регрессия               | FINISHED              | FINISHED              | —                     |
 | Урок 26. Линейная регрессия               | —                  | —                  | ПЕРВАЯ ВЕРСИЯ         |
-| Урок 27. Логистическая регрессия          | FINISHED              | Залито в DS-course | —                     |
+| Урок 27. Логистическая регрессия          | FINISHED              | FINISHED              | —                     |
 | Урок 28. Логистическая регрессия          | —                  | —                  | ПЕРВАЯ ВЕРСИЯ         |
 | Урок 29. Переобучение и валидация         | FINISHED              | FINISHED              | —                     |
 | Урок 30. Переобучение и валидация         | —                  | —                  | FINISHED              |
-| Урок 31. Решающее дерево                  | FINISHED              | Залито в DS-course | —                     |
+| Урок 31. Решающее дерево                  | FINISHED              | FINISHED              | —                     |
 | Урок 32. Решающее дерево                  | —                  | —                  | FINISHED              |
-| Урок 33. Ансамбли, Bagging, случайный лес | FINISHED              | Залито в DS-course | —                     |
+| Урок 33. Ансамбли, Bagging, случайный лес | FINISHED              | FINISHED              | —                     |
 | Урок 34. Ансамбли, Bagging, случайный лес | —                  | —                  | FINISHED              |
-| Урок 35. Boosting                         | FINISHED              | Залито в DS-course | —                     |
-| Урок 36. Boosting                         | —                  | —                  | ПЕРВАЯ ВЕРСИЯ         |
+| Урок 35. Boosting                         | FINISHED              | FINISHED              | —                     |
+| Урок 36. Boosting                         | —                  | —                  | FINISHED              |
 | Итоговое задание                          | —                  | —                  | ПЕРВАЯ ВЕРСИЯ         |
-
