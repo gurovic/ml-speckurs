@@ -14,6 +14,6 @@
 | Урок 32. Решающее дерево                  | —                  | —                  | FINISHED              |
 | Урок 33. Ансамбли, Bagging, случайный лес | FINISHED              | Залито в DS-course | —                     |
 | Урок 34. Ансамбли, Bagging, случайный лес | —                  | —                  | FINISHED              |
-| Урок 35. Boosting                         | FINISHED              | Залито в DS-course | —                     |
+| Урок 35. Boosting                         | FINISHED              | FINISHED              | —                     |
 | Урок 36. Boosting                         | —                  | —                  | FINISHED              |
 | Итоговое задание                          | —                  | —                  | ПЕРВАЯ ВЕРСИЯ         |
