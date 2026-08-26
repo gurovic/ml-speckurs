@@ -12,7 +12,7 @@
 | Урок 30. Переобучение и валидация         | —                  | —                  | FINISHED              |
 | Урок 31. Решающее дерево                  | FINISHED              | FINISHED              | —                     |
 | Урок 32. Решающее дерево                  | —                  | —                  | FINISHED              |
-| Урок 33. Ансамбли, Bagging, случайный лес | FINISHED              | Залито в DS-course | —                     |
+| Урок 33. Ансамбли, Bagging, случайный лес | FINISHED              | FINISHED              | —                     |
 | Урок 34. Ансамбли, Bagging, случайный лес | —                  | —                  | FINISHED              |
 | Урок 35. Boosting                         | FINISHED              | FINISHED              | —                     |
 | Урок 36. Boosting                         | —                  | —                  | FINISHED              |
