@@ -85,6 +85,55 @@ def ensure_submission_dir(path: Path) -> None:
     (path / ".gitkeep").write_text("", encoding="utf-8")
 
 
+LATIN_CAPITALS = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+
+def add_linear_observation_errors(df: pd.DataFrame, rng: np.random.Generator) -> pd.DataFrame:
+    """Грязь только в наблюдаемых столбцах. Цена уже посчитана по чистым значениям."""
+    df = df.copy()
+    n = len(df)
+
+    prefix_mask = rng.random(n) < 0.16
+    letters = rng.choice(LATIN_CAPITALS, size=n)
+    district = df["district"].astype(str).to_numpy()
+    district[prefix_mask] = letters[prefix_mask] + district[prefix_mask]
+    df["district"] = district
+
+    distance_text = np.array([f"{v:.1f}" for v in df["distance_to_center_km"].to_numpy()])
+    dirty_distance = distance_text.astype(object)
+    is_zero = distance_text == "0.0"
+    has_digit_zero = np.char.find(distance_text, "0") >= 0
+
+    zero_idx = np.flatnonzero(is_zero)
+    if len(zero_idx):
+        n_letter_o = min(len(zero_idx), max(1, int(round(0.6 * len(zero_idx)))))
+        for i in rng.choice(zero_idx, size=n_letter_o, replace=False):
+            dirty_distance[i] = "O"
+
+    other_idx = np.flatnonzero(has_digit_zero & ~is_zero)
+    if len(other_idx):
+        n_digit_o = min(len(other_idx), max(8, int(round(0.12 * len(other_idx)))))
+        for i in rng.choice(other_idx, size=n_digit_o, replace=False):
+            dirty_distance[i] = distance_text[i].replace("0", "O")
+    df["distance_to_center_km"] = dirty_distance
+
+    metro_h = df["metro_h"].to_numpy(dtype=float).copy()
+    valid_idx = np.flatnonzero(df["metro_min"].notna().to_numpy())
+    n_out = min(len(valid_idx), max(10, int(round(0.055 * len(valid_idx)))))
+    out_idx = rng.choice(valid_idx, size=n_out, replace=False)
+    kinds = rng.integers(0, 3, size=n_out)
+    metro_min_vals = df["metro_min"].to_numpy()
+    for i, kind in zip(out_idx, kinds):
+        if kind == 0:
+            metro_h[i] = metro_min_vals[i]
+        elif kind == 1:
+            metro_h[i] = float(rng.uniform(6.0, 40.0))
+        else:
+            metro_h[i] = float(-rng.uniform(0.4, 4.0))
+    df["metro_h"] = np.round(metro_h, 4)
+    return df
+
+
 def make_linear_data(n_train: int = 700, n_test: int = 300) -> None:
     rng = np.random.default_rng(RANDOM_STATE + 15)
     n = n_train + n_test
@@ -103,11 +152,15 @@ def make_linear_data(n_train: int = 700, n_test: int = 300) -> None:
     district_distance = pd.Series(districts).map(
         {"центр": 2.5, "спальный": 9.5, "новостройки": 13.0, "пригород": 22.0}
     ).to_numpy()
-    distance_to_center_km = np.clip(rng.normal(district_distance, 3.0), 0.3, 35).round(1)
+    distance_to_center_km = np.clip(rng.normal(district_distance, 3.0), 0.0, 35).round(1)
+    center_idx = np.flatnonzero(districts == "центр")
+    n_zero = min(len(center_idx), max(12, int(round(0.28 * len(center_idx)))))
+    distance_to_center_km[rng.choice(center_idx, size=n_zero, replace=False)] = 0.0
 
     has_metro = rng.binomial(1, np.where(districts == "пригород", 0.35, 0.78), n)
     metro_min = np.where(has_metro == 1, np.clip(rng.normal(8 + distance_to_center_km * 0.25, 4, n), 2, 30), np.nan)
     metro_min = np.round(metro_min, 1)
+    metro_h = np.round(metro_min / 60.0, 4)
 
     views_30d = np.expm1(rng.normal(4.0, 0.75, n)).round(0).astype(int)
     listing_month = rng.choice(["январь", "февраль", "март", "апрель", "май", "июнь"], size=n)
@@ -154,6 +207,7 @@ def make_linear_data(n_train: int = 700, n_test: int = 300) -> None:
             "condition": condition,
             "distance_to_center_km": distance_to_center_km,
             "metro_min": metro_min,
+            "metro_h": metro_h,
             "house_age": house_age,
             "has_balcony": has_balcony,
             "ceiling_height": ceiling_height,
@@ -162,6 +216,7 @@ def make_linear_data(n_train: int = 700, n_test: int = 300) -> None:
             "price_mln": price,
         }
     )
+    df = add_linear_observation_errors(df, rng)
     train = df.iloc[:n_train].copy()
     test_full = df.iloc[n_train:].copy()
     test = test_full.drop(columns=["price_mln"])
@@ -446,7 +501,10 @@ display(sample_submission.head())
 - какие признаки похожи на числовые;
 - какие признаки категориальные;
 - какие признаки нельзя считать “расстоянием” между числами, даже если они записаны числами;
-- что делать с пропусками в `metro_min`.
+- что делать с пропусками в `metro_min`;
+- одинаково ли записаны категории в `district`;
+- почему `distance_to_center_km` может оказаться не числом;
+- как связаны `metro_min` и `metro_h`, нет ли в `metro_h` странных значений.
 """
     ),
     code(
@@ -556,6 +614,7 @@ print(f"R²:   {r2:.3f}")
 
 Попробуйте 2–4 идеи и сравнивайте их только по validation:
 
+- почистить сырые данные до обучения: написание `district`, числовой вид `distance_to_center_km`, выбросы в `metro_h`;
 - добавить признаки `area_per_room`, `kitchen_share`, `is_first_floor`, `is_last_floor`;
 - заменить `views_30d` на `log_views = log1p(views_30d)`;
 - сравнить `LinearRegression`, `Ridge`, `Lasso`;

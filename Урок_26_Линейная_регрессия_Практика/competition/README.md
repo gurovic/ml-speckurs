@@ -32,7 +32,7 @@
 
 Главная метрика: **MAE** (меньше — лучше).
 
-| Решение | Private score | Дополнительные метрики |
+| Решение | Значение на private | Дополнительные метрики |
 |---|---:|---|
-| `simple_baseline.ipynb` | MAE = 0.6366 | RMSE = 0.7941, R² = 0.9477 |
-| `author_solution.ipynb` | MAE = 0.6147 | RMSE = 0.7719, R² = 0.9506 |
+| `simple_baseline.ipynb` | MAE = 0.7998 | RMSE = 1.0104, R² = 0.9161 |
+| `author_solution.ipynb` | MAE = 0.6159 | RMSE = 0.7632, R² = 0.9521 |
