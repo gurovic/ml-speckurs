@@ -1604,6 +1604,7 @@ def write_materials() -> None:
 Участникам раздать:
 
 - `../Урок_26_Линейная_регрессия_Практика.ipynb`
+- `УСЛОВИЕ.md`
 - `data/train.csv`
 - `data/test.csv`
 - `data/sample_submission.csv`
