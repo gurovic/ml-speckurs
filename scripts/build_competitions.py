@@ -1627,6 +1627,7 @@ def write_materials() -> None:
 Участникам раздать:
 
 - `../Урок_28_Логистическая_регрессия_Практика.ipynb`
+- `УСЛОВИЕ.md`
 - `data/train.csv`
 - `data/test.csv`
 - `data/sample_submission.csv`
@@ -1651,6 +1652,7 @@ def write_materials() -> None:
 Участникам раздать:
 
 - `ensemble_classification_competition.ipynb`
+- `УСЛОВИЕ.md`
 - `project_report_template.md`
 - `data/train.csv`
 - `data/test.csv`
